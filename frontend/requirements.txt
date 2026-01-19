@@ -1,0 +1,14 @@
+# Frontend Dependencies for MAYA
+
+# GUI Framework
+PyQt6>=6.6.0
+
+# Computer Vision
+opencv-python>=4.8.0
+
+# Audio Processing (for future waveform audio input)
+numpy>=1.24.0
+pyaudio>=0.2.13
+
+# Utilities
+python-dotenv>=1.0.0
