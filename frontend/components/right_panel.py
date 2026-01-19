@@ -54,6 +54,7 @@ class RightPanel(QWidget):
     message_sent = pyqtSignal(str)  # Signal when user sends a message
     language_changed = pyqtSignal(str)  # Signal when language is changed
     voice_button_clicked = pyqtSignal()  # Signal when voice button is clicked
+    model_mode_changed = pyqtSignal(str)  # Signal when model mode is changed (local/api)
     
     def __init__(self):
         super().__init__()
@@ -65,7 +66,7 @@ class RightPanel(QWidget):
         layout.setContentsMargins(10, 15, 10, 10)
         layout.setSpacing(10)
         
-        # Header with language selector
+        # Header
         header_layout = QHBoxLayout()
         
         header_label = QLabel("💬  Live Conversation Chat")
@@ -74,35 +75,6 @@ class RightPanel(QWidget):
         header_layout.addWidget(header_label)
         
         header_layout.addStretch()
-        
-        # Language selector
-        self.language_selector = QComboBox()
-        self.language_selector.addItems(["English", "বাংলা (Bangla)"])
-        self.language_selector.setStyleSheet("""
-            QComboBox {
-                background-color: #1e293b;
-                color: #cbd5e1;
-                border: 1px solid #334155;
-                border-radius: 6px;
-                padding: 5px 10px;
-                min-width: 120px;
-                font-size: 11px;
-            }
-            QComboBox:hover {
-                border-color: #3b82f6;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox QAbstractItemView {
-                background-color: #1e293b;
-                color: #cbd5e1;
-                selection-background-color: #3b82f6;
-                border: 1px solid #334155;
-            }
-        """)
-        self.language_selector.currentTextChanged.connect(self.on_language_changed)
-        header_layout.addWidget(self.language_selector)
         
         layout.addLayout(header_layout)
         
@@ -119,6 +91,7 @@ class RightPanel(QWidget):
         
         # Messages container
         self.messages_widget = QWidget()
+        self.messages_widget.setStyleSheet("background-color: #0f1729;")
         self.messages_layout = QVBoxLayout(self.messages_widget)
         self.messages_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.messages_layout.setSpacing(8)
@@ -219,6 +192,11 @@ class RightPanel(QWidget):
         """Handle language selection change"""
         language_code = "en" if "English" in language_text else "bn"
         self.language_changed.emit(language_code)
+    
+    def on_model_mode_changed(self, mode_text: str):
+        """Handle model mode change"""
+        mode = "local" if "Local" in mode_text else "api"
+        self.model_mode_changed.emit(mode)
     
     def on_voice_button_clicked(self):
         """Handle voice button click"""

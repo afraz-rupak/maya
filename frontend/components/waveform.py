@@ -38,7 +38,7 @@ class WaveformWidget(QWidget):
         # Video display label
         self.video_label = QLabel()
         self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.video_label.setStyleSheet("background-color: #0a0f1e;")
+        self.video_label.setStyleSheet("background-color: #000000;")
         layout.addWidget(self.video_label, stretch=1)
         
         # State indicator overlay

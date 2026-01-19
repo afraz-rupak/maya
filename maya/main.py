@@ -4,6 +4,7 @@ Main entry point for the three-panel interface
 """
 
 import sys
+import os
 import threading
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout
 from PyQt6.QtCore import Qt
@@ -25,7 +26,20 @@ class MAYAMainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
-        main_layout = QHBoxLayout(central_widget)
+        # Create main vertical layout to hold navbar and content
+        main_container_layout = QVBoxLayout(central_widget)
+        main_container_layout.setContentsMargins(15, 15, 15, 0)
+        main_container_layout.setSpacing(15)
+        
+        # Add navbar at the top
+        from frontend.components.navbar import NavBar
+        self.navbar = NavBar()
+        main_container_layout.addWidget(self.navbar)
+        
+        # Create horizontal layout for three panels
+        content_widget = QWidget()
+        content_widget.setStyleSheet("background-color: #000000;")
+        main_layout = QHBoxLayout(content_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         
@@ -34,17 +48,21 @@ class MAYAMainWindow(QMainWindow):
         from frontend.components.center_panel import CenterPanel
         from frontend.components.right_panel import RightPanel
         from frontend.components.voice_listener import VoiceListener
+        from frontend.components.voice_listener_api import VoiceListenerAPI
         
         self.left_panel = LeftPanel()
         self.center_panel = CenterPanel()
         self.right_panel = RightPanel()
         
-        # Initialize voice listener
-        self.voice_listener = VoiceListener(model_size="base", language="en")
+        # Initialize both voice listeners
+        self.voice_listener_local = VoiceListener(model_size="base", language="en")
+        self.voice_listener_api = VoiceListenerAPI(language="en")
         self.current_language = "en"  # Default language
+        self.model_mode = "local"  # Default to local model
+        self.voice_listener = self.voice_listener_local  # Active listener
         
-        # Load Whisper model in background
-        model_thread = threading.Thread(target=self.voice_listener.load_model)
+        # Load Whisper model in background (for local)
+        model_thread = threading.Thread(target=self.voice_listener_local.load_model)
         model_thread.daemon = True
         model_thread.start()
         
@@ -53,29 +71,70 @@ class MAYAMainWindow(QMainWindow):
         self.right_panel.message_sent.connect(self.on_message_sent)
         self.right_panel.language_changed.connect(self.on_language_changed_ui)
         self.right_panel.voice_button_clicked.connect(self.on_voice_button_clicked)
+        self.right_panel.model_mode_changed.connect(self.on_model_mode_changed)
         
-        # Connect voice listener signals
-        self.voice_listener.transcription_ready.connect(self.on_transcription_ready)
-        self.voice_listener.listening_started.connect(self.on_listening_started)
-        self.voice_listener.listening_stopped.connect(self.on_listening_stopped)
-        self.voice_listener.error_occurred.connect(self.on_voice_error)
+        # Connect navbar signals
+        self.navbar.model_mode_changed.connect(self.on_model_mode_changed)
+        self.navbar.language_changed.connect(self.on_language_changed_ui)
         
-        # Add panels to layout with stretch factors
-        main_layout.addWidget(self.left_panel, stretch=2)
-        main_layout.addWidget(self.center_panel, stretch=3)
-        main_layout.addWidget(self.right_panel, stretch=2)
+        # Connect voice listener signals for both modes
+        self._connect_voice_signals(self.voice_listener_local)
+        self._connect_voice_signals(self.voice_listener_api)
+        
+        # Set fixed widths for left and right panels (25% of typical screen width)
+        # Assuming a standard 1920px width, 25% ≈ 480px, but using 400px for better fit
+        self.left_panel.setFixedWidth(400)
+        self.right_panel.setFixedWidth(400)
+        
+        # Add panels to layout - left and right are fixed width, center takes remaining space
+        main_layout.addWidget(self.left_panel)
+        main_layout.addWidget(self.center_panel, stretch=1)
+        main_layout.addWidget(self.right_panel)
+        
+        # Add content widget to main container
+        main_container_layout.addWidget(content_widget)
     
     def setup_theme(self):
         """Configure dark theme for the application"""
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(10, 15, 30))
+        palette.setColor(QPalette.ColorRole.Window, QColor(0, 0, 0))
         palette.setColor(QPalette.ColorRole.WindowText, QColor(200, 210, 230))
-        palette.setColor(QPalette.ColorRole.Base, QColor(15, 20, 35))
-        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(20, 25, 40))
+        palette.setColor(QPalette.ColorRole.Base, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(0, 0, 0))
         palette.setColor(QPalette.ColorRole.Text, QColor(200, 210, 230))
-        palette.setColor(QPalette.ColorRole.Button, QColor(25, 35, 60))
+        palette.setColor(QPalette.ColorRole.Button, QColor(0, 0, 0))
         palette.setColor(QPalette.ColorRole.ButtonText, QColor(200, 210, 230))
         self.setPalette(palette)
+    
+    def _connect_voice_signals(self, listener):
+        """Connect signals for a voice listener"""
+        listener.transcription_ready.connect(self.on_transcription_ready)
+        listener.listening_started.connect(self.on_listening_started)
+        listener.listening_stopped.connect(self.on_listening_stopped)
+        listener.error_occurred.connect(self.on_voice_error)
+    
+    def on_model_mode_changed(self, mode: str):
+        """Handle model mode change (local/api)"""
+        self.model_mode = mode
+        
+        if mode == "local":
+            self.voice_listener = self.voice_listener_local
+            self.right_panel.add_message("🖥️ Switched to Local Model (Whisper)", is_user=False)
+        else:
+            # Check for API key
+            api_key = os.getenv('OPENAI_API_KEY')
+            if not api_key:
+                self.right_panel.add_message(
+                    "⚠️ OpenAI API key not found. Please set OPENAI_API_KEY environment variable.",
+                    is_user=False
+                )
+                return
+            self.voice_listener = self.voice_listener_api
+            self.right_panel.add_message("☁️ Switched to API Model (OpenAI Whisper)", is_user=False)
+        
+        # Update language for new listener
+        self.voice_listener.set_language(self.current_language)
+        print(f"Model mode changed to: {mode}")
     
     def on_project_selected(self, project_name: str):
         """Handle project selection from left panel"""

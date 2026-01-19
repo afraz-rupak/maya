@@ -31,16 +31,19 @@ MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel 
 ## ✨ Features
 
 ### Voice Recognition
-- **Local Speech-to-Text** using OpenAI Whisper
+- **Dual Mode Operation**:
+  - **Local Speech-to-Text** using OpenAI Whisper (offline, privacy-first)
+  - **API Mode** using OpenAI Cloud Whisper (faster, requires API key)
 - **Multi-language Support**: English (`en`) and Bangla (`bn`)
-- **Offline Processing** for privacy
 - **5-second voice capture** with visual feedback
+- **Toggle switching** via navbar for seamless mode changes
 
 ### User Interface
-- **Three-Panel Layout**:
-  - 🧭 **Left Panel**: Project navigation, logo, camera feed
-  - 🌊 **Center Panel**: Animated waveform (listening/processing/speaking states)
-  - 💬 **Right Panel**: Conversation chat with language selector
+- **Three-Panel Layout** (25% : 50% : 25%):
+  - 🧭 **Left Panel** (400px): Project navigation, logo, camera feed
+  - 🌊 **Center Panel** (flexible): Animated waveform (listening/processing/speaking states)
+  - 💬 **Right Panel** (400px): Conversation chat with language selector
+- **Custom Navbar** with animated toggle switches for Language (EN/BN) and API mode (Local/Cloud)
 
 ### Camera Controls
 - Live webcam preview with auto-hide control bar
@@ -101,8 +104,13 @@ python -m maya.main
 3. Transcription appears automatically
 
 ### Language Switching
-- Use dropdown in chat panel: "English" or "বাংলা (Bangla)"
+- Use navbar toggle: Click **EN** / **BN** switch at top
 - Or type commands: `english`, `bangla`, `en`, `bn`
+
+### API Mode Switching
+- Use navbar toggle: Click **OFF** (Local) / **ON** (API) switch
+- Local mode: Offline Whisper, privacy-first
+- API mode: Cloud Whisper, faster (requires `OPENAI_API_KEY`)
 
 ### Text Commands
 - `listen` / `voice` - Start voice input
@@ -124,16 +132,18 @@ Watch the center waveform for AI status:
 maya/
 ├── maya/                          # Main application module
 │   ├── __init__.py
-│   └── main.py                    # Application entry point
+│   └── main.py                    # Application entry point (three panels + navbar)
 │
 ├── frontend/                      # UI components
 │   ├── components/
-│   │   ├── left_panel.py         # Navigation & camera
-│   │   ├── center_panel.py       # Waveform display
-│   │   ├── right_panel.py        # Chat interface
+│   │   ├── navbar.py             # Custom toggle navbar (Language/API mode)
+│   │   ├── left_panel.py         # Navigation & camera (400px fixed)
+│   │   ├── center_panel.py       # Waveform display (flexible width)
+│   │   ├── right_panel.py        # Chat interface (400px fixed)
 │   │   ├── camera_feed.py        # Camera with controls
 │   │   ├── waveform.py           # Video-based animation
-│   │   └── voice_listener.py     # Speech recognition
+│   │   ├── voice_listener.py     # Local Whisper (offline)
+│   │   └── voice_listener_api.py # OpenAI API Whisper (cloud)
 │   │
 │   └── assets/
 │       ├── maya_logo.png         # Transparent logo
@@ -143,9 +153,10 @@ maya/
 ├── requirements.txt               # Python dependencies
 ├── pyproject.toml                # Project metadata
 ├── run_maya.sh                   # Launch script
+├── API_SETUP.md                  # OpenAI API configuration
+├── VOICE_USAGE.md                # Voice recognition guide
 ├── LICENSE                       # MIT License
-├── README.md                     # This file
-└── VOICE_USAGE.md                # Voice recognition guide
+└── README.md                     # This file
 ```
 
 ---
@@ -165,16 +176,27 @@ maya/
 
 ## 📅 Development Log
 
+### **January 20, 2026** - UI Refinement & Fixed Panel Widths
+- ✅ Created custom navbar with animated toggle switches
+- ✅ Implemented `pyqtProperty` for smooth animations (200ms cubic easing)
+- ✅ Added Language toggle (EN/BN) and API mode toggle (Local/Cloud)
+- ✅ Removed duplicate controls from right panel (model/language dropdowns)
+- ✅ Set fixed panel widths: Left 400px, Right 400px, Center flexible
+- ✅ Optimized layout ratios for better screen utilization
+- ✅ Fixed navbar visibility and QPropertyAnimation errors
+- ✅ Changed color scheme to pure black backgrounds (#000000)
+
 ### **January 20, 2026** - Voice Recognition Integration
 - ✅ Implemented OpenAI Whisper for speech-to-text
 - ✅ Added English and Bangla language support
 - ✅ Created `voice_listener.py` component with threading
+- ✅ Built `voice_listener_api.py` for cloud-based transcription
 - ✅ Integrated voice button in chat panel
-- ✅ Added language dropdown selector
+- ✅ Added dual-mode voice listener switching (local/API)
 - ✅ Connected waveform visual feedback for listening states
 - ✅ Moved `main.py` to `maya/` module folder
 - ✅ Updated launch scripts and imports
-- ✅ Created comprehensive voice usage documentation
+- ✅ Created comprehensive voice usage documentation (`VOICE_USAGE.md`, `API_SETUP.md`)
 
 ### **January 19, 2026** - UI Refinement & Camera Controls
 - ✅ Replaced animated waveform with looping video (`waveform_loop.mp4`)
