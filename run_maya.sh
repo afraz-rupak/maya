@@ -8,5 +8,4 @@ echo "🚀 Starting MAYA Desktop AI Assistant..."
 source maya_env/bin/activate
 
 # Run the application
-cd frontend
-python main.py
+python -m maya.main

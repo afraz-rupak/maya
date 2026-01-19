@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QScrollArea, QLabel, 
-    QTextEdit, QPushButton, QHBoxLayout
+    QTextEdit, QPushButton, QHBoxLayout, QComboBox
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
@@ -52,6 +52,8 @@ class RightPanel(QWidget):
     """Conversation history panel"""
     
     message_sent = pyqtSignal(str)  # Signal when user sends a message
+    language_changed = pyqtSignal(str)  # Signal when language is changed
+    voice_button_clicked = pyqtSignal()  # Signal when voice button is clicked
     
     def __init__(self):
         super().__init__()
@@ -63,11 +65,46 @@ class RightPanel(QWidget):
         layout.setContentsMargins(10, 15, 10, 10)
         layout.setSpacing(10)
         
-        # Header
+        # Header with language selector
+        header_layout = QHBoxLayout()
+        
         header_label = QLabel("💬  Live Conversation Chat")
         header_label.setFont(QFont("Arial", 11, QFont.Weight.Bold))
         header_label.setStyleSheet("color: #94a3b8; border: none; padding: 5px;")
-        layout.addWidget(header_label)
+        header_layout.addWidget(header_label)
+        
+        header_layout.addStretch()
+        
+        # Language selector
+        self.language_selector = QComboBox()
+        self.language_selector.addItems(["English", "বাংলা (Bangla)"])
+        self.language_selector.setStyleSheet("""
+            QComboBox {
+                background-color: #1e293b;
+                color: #cbd5e1;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                padding: 5px 10px;
+                min-width: 120px;
+                font-size: 11px;
+            }
+            QComboBox:hover {
+                border-color: #3b82f6;
+            }
+            QComboBox::drop-down {
+                border: none;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #1e293b;
+                color: #cbd5e1;
+                selection-background-color: #3b82f6;
+                border: 1px solid #334155;
+            }
+        """)
+        self.language_selector.currentTextChanged.connect(self.on_language_changed)
+        header_layout.addWidget(self.language_selector)
+        
+        layout.addLayout(header_layout)
         
         # Conversation scroll area
         self.scroll_area = QScrollArea()
@@ -107,9 +144,31 @@ class RightPanel(QWidget):
         """)
         input_layout.addWidget(self.input_field)
         
-        # Send button
+        # Send and Voice buttons
         button_layout = QHBoxLayout()
         button_layout.addStretch()
+        
+        # Voice button
+        self.voice_button = QPushButton("🎤 Voice")
+        self.voice_button.setStyleSheet("""
+            QPushButton {
+                background-color: #0ea5e9;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #0284c7;
+            }
+            QPushButton:pressed {
+                background-color: #0369a1;
+            }
+        """)
+        self.voice_button.clicked.connect(self.on_voice_button_clicked)
+        button_layout.addWidget(self.voice_button)
         
         send_button = QPushButton("Send")
         send_button.setStyleSheet("""
@@ -155,3 +214,12 @@ class RightPanel(QWidget):
             self.add_message(text, is_user=True)
             self.input_field.clear()
             self.message_sent.emit(text)
+    
+    def on_language_changed(self, language_text: str):
+        """Handle language selection change"""
+        language_code = "en" if "English" in language_text else "bn"
+        self.language_changed.emit(language_code)
+    
+    def on_voice_button_clicked(self):
+        """Handle voice button click"""
+        self.voice_button_clicked.emit()

@@ -1,61 +1,280 @@
-# maya
+# MAYA - Desktop AI Assistant 🤖
 
-<a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
-    <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
-</a>
+<div align="center">
 
-A short description of the project.
+![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)
+![PyQt6](https://img.shields.io/badge/PyQt6-6.10-green?logo=qt&logoColor=white)
+![Whisper](https://img.shields.io/badge/OpenAI-Whisper-orange?logo=openai&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-## Project Organization
+**Multi-modal AI Desktop Assistant with Speech Recognition & Computer Vision**
+
+[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Development Log](#development-log)
+
+</div>
+
+---
+
+## 🎯 Overview
+
+MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel interface optimized for multi-modal interactions. It combines speech-to-text (Whisper), real-time camera feed, and conversational AI in a sleek dark blue theme.
+
+### Key Capabilities
+- 🎤 **Speech Recognition** - OpenAI Whisper with English & Bangla support
+- 🎥 **Camera Integration** - Live feed with privacy controls (blur, on/off)
+- 💬 **Conversational UI** - Chat interface with message history
+- 🎨 **Modern Design** - Dark blue theme with smooth animations
+- 🔊 **Visual Feedback** - Real-time waveform showing AI states
+
+---
+
+## ✨ Features
+
+### Voice Recognition
+- **Local Speech-to-Text** using OpenAI Whisper
+- **Multi-language Support**: English (`en`) and Bangla (`bn`)
+- **Offline Processing** for privacy
+- **5-second voice capture** with visual feedback
+
+### User Interface
+- **Three-Panel Layout**:
+  - 🧭 **Left Panel**: Project navigation, logo, camera feed
+  - 🌊 **Center Panel**: Animated waveform (listening/processing/speaking states)
+  - 💬 **Right Panel**: Conversation chat with language selector
+
+### Camera Controls
+- Live webcam preview with auto-hide control bar
+- **Blur Toggle** - Gaussian blur for privacy (45×45 kernel)
+- **Camera On/Off** - Disable camera when not in use
+- **SVG Icons** - Professional Flaticon-style controls
+
+---
+
+## 🚀 Installation
+
+### Prerequisites
+- Python 3.10 or higher
+- macOS, Linux, or Windows
+- Microphone access
+- Webcam (optional)
+
+### Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/afraz-rupak/maya.git
+cd maya
+```
+
+2. **Create virtual environment**
+```bash
+python -m venv maya_env
+source maya_env/bin/activate  # On Windows: maya_env\Scripts\activate
+```
+
+3. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+4. **Run MAYA**
+```bash
+python -m maya.main
+# or use the launch script
+./run_maya.sh
+```
+
+---
+
+## 📖 Usage
+
+### Starting the Application
+```bash
+cd maya
+source maya_env/bin/activate
+python -m maya.main
+```
+
+### Voice Commands
+1. Click the **🎤 Voice** button in the chat panel
+2. Speak for 5 seconds
+3. Transcription appears automatically
+
+### Language Switching
+- Use dropdown in chat panel: "English" or "বাংলা (Bangla)"
+- Or type commands: `english`, `bangla`, `en`, `bn`
+
+### Text Commands
+- `listen` / `voice` - Start voice input
+- `english` / `en` - Switch to English
+- `bangla` / `বাংলা` / `bn` - Switch to Bangla
+
+### Visual States
+Watch the center waveform for AI status:
+- 🟢 **Listening** - Recording audio
+- 🟠 **Processing** - Transcribing/thinking
+- 🔵 **Speaking** - AI responding
+- ⚪ **Ready** - Idle state
+
+---
+
+## 📦 Project Structure
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
-├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
+maya/
+├── maya/                          # Main application module
+│   ├── __init__.py
+│   └── main.py                    # Application entry point
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
+├── frontend/                      # UI components
+│   ├── components/
+│   │   ├── left_panel.py         # Navigation & camera
+│   │   ├── center_panel.py       # Waveform display
+│   │   ├── right_panel.py        # Chat interface
+│   │   ├── camera_feed.py        # Camera with controls
+│   │   ├── waveform.py           # Video-based animation
+│   │   └── voice_listener.py     # Speech recognition
+│   │
+│   └── assets/
+│       ├── maya_logo.png         # Transparent logo
+│       └── videos/
+│           └── waveform_loop.mp4 # Looping animation
 │
-├── models             <- Trained and serialized models, model predictions, or model summaries
-│
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
-│
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         maya and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── maya   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes maya a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
+├── requirements.txt               # Python dependencies
+├── pyproject.toml                # Project metadata
+├── run_maya.sh                   # Launch script
+├── LICENSE                       # MIT License
+├── README.md                     # This file
+└── VOICE_USAGE.md                # Voice recognition guide
 ```
 
---------
+---
+
+## 🛠️ Technology Stack
+
+| Component | Technology | Version |
+|-----------|-----------|---------|
+| GUI Framework | PyQt6 | 6.10.2 |
+| Speech Recognition | OpenAI Whisper | 20250625 |
+| Audio Capture | sounddevice | 0.5.3 |
+| Computer Vision | OpenCV | 4.13.0 |
+| ML Framework | PyTorch | 2.9.1 |
+| Array Processing | NumPy | 2.4.0 |
+
+---
+
+## 📅 Development Log
+
+### **January 20, 2026** - Voice Recognition Integration
+- ✅ Implemented OpenAI Whisper for speech-to-text
+- ✅ Added English and Bangla language support
+- ✅ Created `voice_listener.py` component with threading
+- ✅ Integrated voice button in chat panel
+- ✅ Added language dropdown selector
+- ✅ Connected waveform visual feedback for listening states
+- ✅ Moved `main.py` to `maya/` module folder
+- ✅ Updated launch scripts and imports
+- ✅ Created comprehensive voice usage documentation
+
+### **January 19, 2026** - UI Refinement & Camera Controls
+- ✅ Replaced animated waveform with looping video (`waveform_loop.mp4`)
+- ✅ Updated logo with transparent background
+- ✅ Changed color scheme to dark blue theme (#0a0f1e, #1e293b, #3b82f6)
+- ✅ Added camera blur toggle functionality
+- ✅ Implemented auto-hide control bar (300ms fade animation)
+- ✅ Integrated Flaticon-style SVG icons for controls
+- ✅ Added separate blur and camera on/off buttons
+- ✅ Resolved PyQt6 SVG rendering (QtSvg module)
+
+### **January 19, 2026** - Frontend Development
+- ✅ Created three-panel desktop layout using PyQt6
+- ✅ Built left panel with project navigation and camera feed
+- ✅ Developed center panel with animated waveform visualization
+- ✅ Implemented right panel chat interface with message bubbles
+- ✅ Added signal connections between panels
+- ✅ Applied dark theme with QPalette customization
+- ✅ Created modular component structure
+
+### **January 19, 2026** - Initial Setup
+- ✅ Created virtual environment `maya_env`
+- ✅ Installed Python 3.13 and basic libraries
+- ✅ Set up project structure with Cookiecutter Data Science template
+- ✅ Updated `pyproject.toml` for Python >=3.10 compatibility
+- ✅ Initialized Git repository
+- ✅ Created MIT LICENSE
+
+### **January 20, 2026** - Project Cleanup
+- ✅ Removed unused files (`remove_bg.py`, test videos, old logos)
+- ✅ Deleted empty directories (data/, models/, notebooks/, etc.)
+- ✅ Uninstalled unnecessary libraries (rembg, python-dotenv, ruff, etc.)
+- ✅ Cleaned up 25+ unused dependencies
+- ✅ Updated `requirements.txt` to essential packages only
+- ✅ Removed ruff configuration from `pyproject.toml`
+- ✅ Committed and pushed cleanup to GitHub
+
+---
+
+## 🔮 Roadmap
+
+### Planned Features
+- [ ] Wake word detection ("Hey MAYA")
+- [ ] Continuous listening mode
+- [ ] Voice activity detection (auto-stop recording)
+- [ ] Text-to-speech (TTS) for AI responses
+- [ ] Context-aware conversation memory
+- [ ] Plugin system for custom AI models
+- [ ] More language support (Hindi, Urdu, Arabic)
+- [ ] Screen capture and annotation tools
+- [ ] Project management features
+- [ ] Export conversation history
+
+### Backend Integration (TODO)
+- [ ] Connect to LLM API (OpenAI, Anthropic, local models)
+- [ ] Implement RAG (Retrieval-Augmented Generation)
+- [ ] Add vector database for context storage
+- [ ] Build custom AI agent workflows
+- [ ] Integrate computer vision models for project list
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👤 Author
+
+**Afraz Ul Haque**
+- GitHub: [@afraz-rupak](https://github.com/afraz-rupak)
+- Repository: [maya](https://github.com/afraz-rupak/maya)
+
+---
+
+## 🙏 Acknowledgments
+
+- OpenAI Whisper for state-of-the-art speech recognition
+- PyQt6 for the powerful GUI framework
+- Flaticon for icon design inspiration
+- Cookiecutter Data Science for project template
+
+---
+
+<div align="center">
+
+**Made with ❤️ for AI-powered productivity**
+
+</div>
 
