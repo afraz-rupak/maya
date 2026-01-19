@@ -18,15 +18,5 @@ classifiers = [
 requires-python = ">=3.10"
 
 
-[tool.ruff]
-line-length = 99
-src = ["maya"]
-include = ["pyproject.toml", "maya/**/*.py"]
 
-[tool.ruff.lint]
-extend-select = ["I"]  # Add import sorting
-
-[tool.ruff.lint.isort]
-known-first-party = ["maya"]
-force-sort-within-sections = true
 

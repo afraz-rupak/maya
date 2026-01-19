@@ -1,4 +1,3 @@
-pip
-python-dotenv
-ruff
--e .
+PyQt6>=6.10.0
+opencv-python>=4.13.0
+numpy>=2.4.0
