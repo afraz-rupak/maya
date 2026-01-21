@@ -104,6 +104,7 @@ class MAYAMainWindow(QMainWindow):
         
         # Create main interface
         self.create_main_interface()
+        self.stack.addWidget(self.main_widget)
         self.stack.setCurrentWidget(self.main_widget)
     
     def on_auth_success(self, username):
@@ -111,13 +112,9 @@ class MAYAMainWindow(QMainWindow):
         # Create main interface if not exists
         if not hasattr(self, 'main_widget'):
             self.create_main_interface()
+            self.stack.addWidget(self.main_widget)
         
         self.stack.setCurrentWidget(self.main_widget)
-        
-        # Add stack widget to main window
-        if not hasattr(self, 'stack_added'):
-            self.stack.addWidget(self.main_widget)
-            self.stack_added = True
     
     def create_main_interface(self):
         """Create the main MAYA interface"""
