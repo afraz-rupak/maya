@@ -17,18 +17,28 @@
 
 ## 🎯 Overview
 
-MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel interface optimized for multi-modal interactions. It combines speech-to-text (Whisper), real-time camera feed, and conversational AI in a sleek dark blue theme.
+MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel interface optimized for multi-modal interactions. It combines biometric face authentication, speech-to-text (Whisper), real-time camera feed, and conversational AI in a sleek dark theme.
 
 ### Key Capabilities
+- 🔐 **Face Authentication** - Secure biometric login on app launch
 - 🎤 **Speech Recognition** - OpenAI Whisper with English & Bangla support
 - 🎥 **Camera Integration** - Live feed with privacy controls (blur, on/off)
 - 💬 **Conversational UI** - Chat interface with message history
-- 🎨 **Modern Design** - Dark blue theme with smooth animations
+- 🎨 **Modern Design** - Dark theme with smooth animations
 - 🔊 **Visual Feedback** - Real-time waveform showing AI states
 
 ---
 
 ## ✨ Features
+
+### 🔐 Face Authentication (NEW!)
+- **Biometric Login**: Face recognition on application launch using SFace (lightweight FaceNet)
+- **Secure Enrollment**: 5-step face capture from multiple angles
+- **Encrypted Storage**: Face embeddings stored encrypted locally (AES-128)
+- **Backup PIN**: 4-digit PIN fallback authentication
+- **Privacy-first**: All processing local, no cloud uploads
+- **Anti-spoofing**: Live face detection prevents photo attacks
+- See [FACE_AUTH_GUIDE.md](FACE_AUTH_GUIDE.md) for detailed setup
 
 ### Voice Recognition
 - **Dual Mode Operation**:
@@ -58,8 +68,8 @@ MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel 
 ### Prerequisites
 - Python 3.10 or higher
 - macOS, Linux, or Windows
+- Webcam (for face authentication and camera features)
 - Microphone access
-- Webcam (optional)
 
 ### Setup
 
@@ -80,23 +90,37 @@ source maya_env/bin/activate  # On Windows: maya_env\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. **Run MAYA**
+4. **Run MAYA (First-time Setup)**
 ```bash
 python -m maya.main
+```
+
+On first launch, you'll be guided through face enrollment:
+- Enter your name
+- Capture 5 face images from different angles
+- Set a backup PIN
+
+5. **Subsequent Launches**
+```bash
+python -m maya.main  # Face authentication will start automatically
 # or use the launch script
 ./run_maya.sh
+```
+
+**Skip Authentication (Development)**
+```bash
+python -m maya.main --skip-auth
 ```
 
 ---
 
 ## 📖 Usage
 
-### Starting the Application
-```bash
-cd maya
-source maya_env/bin/activate
-python -m maya.main
-```
+### Face Authentication
+- **First Launch**: Complete face enrollment (5 captures + PIN)
+- **Daily Use**: Look at camera → Automatic recognition → Access granted
+- **Backup**: Click "Use PIN" if face recognition fails
+- **Detailed Guide**: See [FACE_AUTH_GUIDE.md](FACE_AUTH_GUIDE.md)
 
 ### Voice Commands
 1. Click the **🎤 Voice** button in the chat panel
@@ -132,10 +156,14 @@ Watch the center waveform for AI status:
 maya/
 ├── maya/                          # Main application module
 │   ├── __init__.py
-│   └── main.py                    # Application entry point (three panels + navbar)
+│   └── main.py                    # Entry point with face auth integration
 │
 ├── frontend/                      # UI components
 │   ├── components/
+│   │   ├── face_auth_screen.py   # 🔐 Face authentication UI
+│   │   ├── face_enrollment.py    # 🔐 First-time face enrollment
+│   │   ├── face_recognizer.py    # 🔐 SFace model integration
+│   │   ├── secure_storage.py     # 🔐 Encrypted embeddings storage
 │   │   ├── navbar.py             # Custom toggle navbar (Language/API mode)
 │   │   ├── left_panel.py         # Navigation & camera (400px fixed)
 │   │   ├── center_panel.py       # Waveform display (flexible width)
@@ -145,14 +173,22 @@ maya/
 │   │   ├── voice_listener.py     # Local Whisper (offline)
 │   │   └── voice_listener_api.py # OpenAI API Whisper (cloud)
 │   │
+│   ├── models/                    # Downloaded face recognition models
+│   │   ├── face_detection_yunet_2023mar.onnx
+│   │   └── face_recognition_sface_2021dec.onnx
+│   │
 │   └── assets/
 │       ├── maya_logo.png         # Transparent logo
 │       └── videos/
 │           └── waveform_loop.mp4 # Looping animation
 │
+├── scripts/
+│   └── setup_pin.py              # 🔐 PIN setup utility
+│
 ├── requirements.txt               # Python dependencies
 ├── pyproject.toml                # Project metadata
 ├── run_maya.sh                   # Launch script
+├── FACE_AUTH_GUIDE.md            # 🔐 Face authentication guide
 ├── API_SETUP.md                  # OpenAI API configuration
 ├── VOICE_USAGE.md                # Voice recognition guide
 ├── LICENSE                       # MIT License
@@ -166,6 +202,9 @@ maya/
 | Component | Technology | Version |
 |-----------|-----------|---------|
 | GUI Framework | PyQt6 | 6.10.2 |
+| Face Recognition | OpenCV SFace | 4.13.0 |
+| Face Detection | YuNet (ONNX) | 2023mar |
+| Encryption | cryptography | 44.0.0 |
 | Speech Recognition | OpenAI Whisper | 20250625 |
 | Audio Capture | sounddevice | 0.5.3 |
 | Computer Vision | OpenCV | 4.13.0 |
@@ -175,6 +214,20 @@ maya/
 ---
 
 ## 📅 Development Log
+
+### **January 22, 2026** - Face Authentication System
+- ✅ Implemented biometric face authentication on app launch
+- ✅ Created face enrollment screen with 5-step capture process
+- ✅ Integrated OpenCV SFace (lightweight FaceNet) for recognition
+- ✅ Added YuNet face detector (ONNX, ~20 FPS on CPU)
+- ✅ Built secure storage with AES-128 encryption for embeddings
+- ✅ Implemented PBKDF2-HMAC-SHA256 for PIN hashing
+- ✅ Created circular camera preview with animated scanning ring
+- ✅ Added backup PIN authentication system
+- ✅ Built PIN setup utility script
+- ✅ Comprehensive face auth documentation (FACE_AUTH_GUIDE.md)
+- ✅ Updated main.py with stacked widget for auth/main screens
+- ✅ Added `--skip-auth` flag for development
 
 ### **January 20, 2026** - UI Refinement & Fixed Panel Widths
 - ✅ Created custom navbar with animated toggle switches
@@ -237,6 +290,15 @@ maya/
 ---
 
 ## 🔮 Roadmap
+
+### Biometric & Security
+- [x] Face authentication on launch
+- [x] Encrypted face embeddings storage
+- [x] Backup PIN system
+- [ ] Multi-user support
+- [ ] Advanced anti-spoofing (liveness detection)
+- [ ] Two-factor authentication
+- [ ] Biometric settings UI
 
 ### Planned Features
 - [ ] Wake word detection ("Hey MAYA")
