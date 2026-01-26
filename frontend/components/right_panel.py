@@ -30,25 +30,42 @@ class ChatBubble(QWidget):
             border-radius: 14px;
         """)
         
-        # Message bubble
+        # Message bubble with text
         bubble = QFrame()
-        bubble.setFixedHeight(45)
-        bubble.setMinimumWidth(80)
-        bubble.setMaximumWidth(120)
+        bubble_layout = QVBoxLayout(bubble)
+        bubble_layout.setContentsMargins(10, 8, 10, 8)
+        
+        message_label = QLabel(text)
+        message_label.setWordWrap(True)
+        message_label.setStyleSheet(f"""
+            color: {COLORS['text_primary']};
+            font-size: 12px;
+            background: transparent;
+            border: none;
+        """)
+        bubble_layout.addWidget(message_label)
         
         if is_user:
             bubble.setStyleSheet(f"""
-                background-color: {COLORS['chat_user']};
-                border-radius: 10px;
+                QFrame {{
+                    background-color: {COLORS['chat_user']};
+                    border-radius: 10px;
+                }}
             """)
+            bubble.setMinimumWidth(80)
+            bubble.setMaximumWidth(160)
             layout.addWidget(bubble)
             layout.addStretch()
             layout.addWidget(avatar)
         else:
             bubble.setStyleSheet(f"""
-                background-color: {COLORS['chat_ai']};
-                border-radius: 10px;
+                QFrame {{
+                    background-color: {COLORS['chat_ai']};
+                    border-radius: 10px;
+                }}
             """)
+            bubble.setMinimumWidth(80)
+            bubble.setMaximumWidth(160)
             layout.addWidget(avatar)
             layout.addWidget(bubble)
             layout.addStretch()
@@ -64,7 +81,7 @@ class RightPanel(QFrame):
     
     def __init__(self):
         super().__init__()
-        self.setFixedWidth(220)
+        self.setFixedWidth(280)
         self.setStyleSheet(f"""
             QFrame#rightPanel {{
                 background-color: #0a0a0a;
@@ -85,26 +102,50 @@ class RightPanel(QFrame):
         header.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 10px;")
         layout.addWidget(header)
         
-        # Chat messages
-        chat_widget = QWidget()
-        chat_layout = QVBoxLayout(chat_widget)
-        chat_layout.setContentsMargins(0, 8, 0, 0)
-        chat_layout.setSpacing(6)
+        # Scrollable chat area
+        from PyQt6.QtWidgets import QScrollArea
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background: transparent;
+            }
+            QScrollBar:vertical {
+                background: #1a1a1a;
+                width: 6px;
+                border-radius: 3px;
+            }
+            QScrollBar::handle:vertical {
+                background: #3a3a3a;
+                border-radius: 3px;
+            }
+        """)
         
-        # AI message
-        chat_layout.addWidget(ChatBubble(is_user=False))
+        # Chat messages container
+        self.chat_widget = QWidget()
+        self.chat_layout = QVBoxLayout(self.chat_widget)
+        self.chat_layout.setContentsMargins(0, 8, 0, 0)
+        self.chat_layout.setSpacing(8)
+        self.chat_layout.addStretch()
         
-        # User message
-        chat_layout.addWidget(ChatBubble(is_user=True))
-        
-        chat_layout.addStretch()
-        layout.addWidget(chat_widget, stretch=1)
+        scroll.setWidget(self.chat_widget)
+        layout.addWidget(scroll, stretch=1)
     
     def add_message(self, text: str, is_user: bool):
         """Add a message to the conversation"""
-        # For now, just a placeholder
-        # In full implementation, would add ChatBubble with text
-        pass
+        # Remove the stretch if it exists
+        if self.chat_layout.count() > 0:
+            item = self.chat_layout.takeAt(self.chat_layout.count() - 1)
+            # Don't call deleteLater on spacer items
+        
+        # Add new message bubble
+        bubble = ChatBubble(text=text, is_user=is_user)
+        self.chat_layout.addWidget(bubble)
+        
+        # Add stretch at the end
+        self.chat_layout.addStretch()
     
     def send_message(self):
         """Handle send button click"""

@@ -155,6 +155,7 @@ class MAYAMainWindow(QMainWindow):
         self.current_language = "en"  # Default language
         self.model_mode = "local"  # Default to local model
         self.voice_listener = self.voice_listener_local  # Active listener
+        self.is_listening = False  # Track listening state
         
         # Load Whisper model in background (for local)
         model_thread = threading.Thread(target=self.voice_listener_local.load_model)
@@ -220,18 +221,13 @@ class MAYAMainWindow(QMainWindow):
         
         if mode == "local":
             self.voice_listener = self.voice_listener_local
-            self.right_panel.add_message("🖥️ Switched to Local Model (Whisper)", is_user=False)
         else:
             # Check for API key
             api_key = os.getenv('OPENAI_API_KEY')
             if not api_key:
-                self.right_panel.add_message(
-                    "⚠️ OpenAI API key not found. Please set OPENAI_API_KEY environment variable.",
-                    is_user=False
-                )
+                print("⚠️ OpenAI API key not found")
                 return
             self.voice_listener = self.voice_listener_api
-            self.right_panel.add_message("☁️ Switched to API Model (OpenAI Whisper)", is_user=False)
         
         # Update language for new listener
         self.voice_listener.set_language(self.current_language)
@@ -240,7 +236,6 @@ class MAYAMainWindow(QMainWindow):
     def on_project_selected(self, project_name: str):
         """Handle project selection from left panel"""
         print(f"Project selected: {project_name}")
-        self.right_panel.add_message(f"Switched to project: {project_name}", is_user=False)
     
     def on_message_sent(self, message: str):
         """Handle message sent from right panel"""
@@ -249,11 +244,9 @@ class MAYAMainWindow(QMainWindow):
         # Check for language change commands
         if message.lower() in ['switch to english', 'english', 'en']:
             self.change_language('en')
-            self.right_panel.add_message("Language switched to English", is_user=False)
             return
         elif message.lower() in ['switch to bangla', 'bangla', 'বাংলা', 'bn']:
             self.change_language('bn')
-            self.right_panel.add_message("Language switched to Bangla (বাংলা)", is_user=False)
             return
         elif message.lower() in ['listen', 'start listening', 'voice']:
             self.start_voice_listening()
@@ -268,15 +261,20 @@ class MAYAMainWindow(QMainWindow):
             import time
             time.sleep(1)
             self.center_panel.set_state('speaking')
-            time.sleep(2)
+            time.sleep(1.5)
             
             # Add AI response
-            response = f"I received your message: '{message}'. This is a placeholder response."
+            response = f"I received: '{message}'"
             self.right_panel.add_message(response, is_user=False)
             
-            self.center_panel.set_state('idle')
+            # Return to listening if mic is unmuted
+            if self.is_listening:
+                self.center_panel.set_state('listening')
+            else:
+                self.center_panel.set_state('idle')
         
         thread = threading.Thread(target=simulate_response)
+        thread.daemon = True
         thread.start()
 
 
@@ -291,7 +289,7 @@ class MAYAMainWindow(QMainWindow):
         """Handle language change from UI"""
         self.change_language(language_code)
         lang_name = "English" if language_code == "en" else "বাংলা"
-        self.right_panel.add_message(f"Language switched to {lang_name}", is_user=False)
+        print(f"Language switched to {lang_name}")
     
     def on_voice_button_clicked(self):
         """Handle voice button click from UI"""
@@ -311,8 +309,10 @@ class MAYAMainWindow(QMainWindow):
             self.right_panel.add_message(text, is_user=True)
             # Process it as if user typed it
             self.on_message_sent(text)
-        else:
-            self.right_panel.add_message("No speech detected", is_user=False)
+        
+        # Continue listening if mic is still unmuted
+        if self.is_listening:
+            self.start_voice_listening(duration=5)
     
     def on_listening_started(self):
         """Handle listening started"""
@@ -327,7 +327,6 @@ class MAYAMainWindow(QMainWindow):
     def on_voice_error(self, error_message: str):
         """Handle voice listener errors"""
         print(f"Voice error: {error_message}")
-        self.right_panel.add_message(f"Voice error: {error_message}", is_user=False)
         self.center_panel.set_state('idle')
     
     def close_application(self):
@@ -348,7 +347,15 @@ class MAYAMainWindow(QMainWindow):
         """Handle microphone toggle"""
         status = "Unmuted" if is_unmuted else "Muted"
         print(f"Microphone toggled: {status}")
-        # TODO: Implement microphone control logic
+        
+        if is_unmuted:
+            # Start continuous voice listening
+            self.is_listening = True
+            self.start_voice_listening(duration=5)
+        else:
+            # Stop voice listening
+            self.is_listening = False
+            self.center_panel.set_state('idle')
 
 
 def main():

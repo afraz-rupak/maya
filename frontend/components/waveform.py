@@ -96,34 +96,10 @@ class WaveformWidget(QWidget):
         """Update the waveform state"""
         self.state = state
         
-        # Update state indicator
-        state_text = {
-            self.IDLE: "Ready",
-            self.LISTENING: "● Listening...",
-            self.PROCESSING: "⟳ Processing...",
-            self.SPEAKING: "♪ Speaking..."
-        }
-        
-        state_colors = {
-            self.IDLE: "#64748b",
-            self.LISTENING: "#10b981",
-            self.PROCESSING: "#f59e0b",
-            self.SPEAKING: "#3b82f6"
-        }
-        
-        text = state_text.get(state, "Ready")
-        color = state_colors.get(state, "#646470")
-        
-        self.state_label.setText(text)
-        self.state_label.setStyleSheet(f"""
-            QLabel {{
-                color: {color};
-                font-size: 14px;
-                font-weight: bold;
-                padding: 20px;
-                background-color: transparent;
-            }}
-        """)
+        # State changes could modify video playback speed or effects
+        # For now, just track the state internally
+        # Future: Could change video speed, apply filters, etc.
+        print(f"Waveform state: {state}")
     
     def closeEvent(self, event):
         """Clean up video on close"""

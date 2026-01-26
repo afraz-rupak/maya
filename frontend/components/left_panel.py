@@ -79,9 +79,42 @@ class LeftPanel(QFrame):
         header.addWidget(settings_btn)
         features_layout.addLayout(header)
         
-        # Feature cards
-        for _ in range(3):
-            features_layout.addWidget(FeatureCard())
+        # Feature buttons
+        face_verification_btn = QPushButton("Face Verification")
+        face_verification_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        face_verification_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {COLORS['card_bg']};
+                color: {COLORS['text_primary']};
+                border: none;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-size: 11px;
+                text-align: left;
+            }}
+            QPushButton:hover {{
+                background-color: {COLORS['card_hover']};
+            }}
+        """)
+        features_layout.addWidget(face_verification_btn)
+        
+        speech_recognition_btn = QPushButton("Speech Recognition")
+        speech_recognition_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        speech_recognition_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {COLORS['card_bg']};
+                color: {COLORS['text_primary']};
+                border: none;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-size: 11px;
+                text-align: left;
+            }}
+            QPushButton:hover {{
+                background-color: {COLORS['card_hover']};
+            }}
+        """)
+        features_layout.addWidget(speech_recognition_btn)
         
         features_layout.addStretch()
         layout.addWidget(features_widget, stretch=1)
