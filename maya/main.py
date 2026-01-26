@@ -47,6 +47,7 @@ class MAYAMainWindow(QMainWindow):
             self.show_enrollment_screen()
         elif skip_auth:
             self.create_main_interface()
+            self.stack.addWidget(self.main_widget)
             self.stack.setCurrentWidget(self.main_widget)
         else:
             self.show_auth_screen()
@@ -120,22 +121,22 @@ class MAYAMainWindow(QMainWindow):
         """Create the main MAYA interface"""
         self.main_widget = QWidget()
         
-        # Create main vertical layout to hold navbar and content
+        # Create main vertical layout to hold top navbar and content
         main_container_layout = QVBoxLayout(self.main_widget)
-        main_container_layout.setContentsMargins(15, 15, 15, 0)
-        main_container_layout.setSpacing(15)
+        main_container_layout.setContentsMargins(0, 0, 0, 0)
+        main_container_layout.setSpacing(0)
         
-        # Add navbar at the top
-        from frontend.components.navbar import NavBar
-        self.navbar = NavBar()
-        main_container_layout.addWidget(self.navbar)
+        # Add top navigation bar
+        from frontend.components.top_navbar import TopNavBar
+        self.top_navbar = TopNavBar()
+        main_container_layout.addWidget(self.top_navbar)
         
         # Create horizontal layout for three panels
         content_widget = QWidget()
-        content_widget.setStyleSheet("background-color: #000000;")
+        content_widget.setStyleSheet(f"background-color: #0D0D0D;")
         main_layout = QHBoxLayout(content_widget)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(14, 6, 14, 14)
+        main_layout.setSpacing(10)
         
         # Create three main panels
         from frontend.components.left_panel import LeftPanel
@@ -167,18 +168,21 @@ class MAYAMainWindow(QMainWindow):
         self.right_panel.voice_button_clicked.connect(self.on_voice_button_clicked)
         self.right_panel.model_mode_changed.connect(self.on_model_mode_changed)
         
-        # Connect navbar signals
-        self.navbar.model_mode_changed.connect(self.on_model_mode_changed)
-        self.navbar.language_changed.connect(self.on_language_changed_ui)
+        # Connect center panel signals
+        self.center_panel.end_session.connect(self.close_application)
+        self.center_panel.camera_toggled.connect(self.on_camera_toggled)
+        self.center_panel.mic_toggled.connect(self.on_mic_toggled)
+        
+        # Connect top navbar signals
+        self.top_navbar.model_mode_changed.connect(self.on_model_mode_changed)
+        self.top_navbar.language_changed.connect(self.on_language_changed_ui)
         
         # Connect voice listener signals for both modes
         self._connect_voice_signals(self.voice_listener_local)
         self._connect_voice_signals(self.voice_listener_api)
         
-        # Set fixed widths for left and right panels (25% of typical screen width)
-        # Assuming a standard 1920px width, 25% ≈ 480px, but using 400px for better fit
-        self.left_panel.setFixedWidth(400)
-        self.right_panel.setFixedWidth(400)
+        # Panels already have fixed widths set in their __init__ methods
+        # Left: 190px, Right: 200px, Center: stretch
         
         # Add panels to layout - left and right are fixed width, center takes remaining space
         main_layout.addWidget(self.left_panel)
@@ -189,16 +193,19 @@ class MAYAMainWindow(QMainWindow):
         main_container_layout.addWidget(content_widget)
     
     def setup_theme(self):
-        """Configure dark theme for the application"""
+        """Configure dark theme for the application - Figma colors"""
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.WindowText, QColor(200, 210, 230))
-        palette.setColor(QPalette.ColorRole.Base, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.Text, QColor(200, 210, 230))
-        palette.setColor(QPalette.ColorRole.Button, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.ButtonText, QColor(200, 210, 230))
+        palette.setColor(QPalette.ColorRole.Window, QColor(13, 13, 13))  # #0D0D0D
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Base, QColor(20, 20, 20))  # #141414
+        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(30, 30, 30))
+        palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Button, QColor(30, 30, 30))
+        palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
         self.setPalette(palette)
+        
+        # Set main window background
+        self.setStyleSheet("background-color: #0D0D0D;")
     
     def _connect_voice_signals(self, listener):
         """Connect signals for a voice listener"""
@@ -322,6 +329,26 @@ class MAYAMainWindow(QMainWindow):
         print(f"Voice error: {error_message}")
         self.right_panel.add_message(f"Voice error: {error_message}", is_user=False)
         self.center_panel.set_state('idle')
+    
+    def close_application(self):
+        """Close the application"""
+        print("Closing application...")
+        self.close()
+        QApplication.quit()
+    
+    def on_camera_toggled(self, is_on: bool):
+        """Handle camera toggle"""
+        status = "ON" if is_on else "OFF"
+        print(f"Camera toggled: {status}")
+        # Toggle the left panel's camera feed
+        if hasattr(self, 'left_panel') and hasattr(self.left_panel, 'camera'):
+            self.left_panel.camera.toggle_camera()
+    
+    def on_mic_toggled(self, is_unmuted: bool):
+        """Handle microphone toggle"""
+        status = "Unmuted" if is_unmuted else "Muted"
+        print(f"Microphone toggled: {status}")
+        # TODO: Implement microphone control logic
 
 
 def main():

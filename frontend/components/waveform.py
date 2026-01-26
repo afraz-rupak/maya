@@ -40,22 +40,6 @@ class WaveformWidget(QWidget):
         self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.video_label.setStyleSheet("background-color: #000000;")
         layout.addWidget(self.video_label, stretch=1)
-        
-        # State indicator overlay
-        self.state_label = QLabel("Ready")
-        self.state_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
-        self.state_label.setStyleSheet("""
-            QLabel {
-                color: #64748b;
-                font-size: 16px;
-                font-weight: bold;
-                padding: 20px;
-                background-color: transparent;
-            }
-        """)
-        layout.addWidget(self.state_label)
-        layout.setStretch(0, 1)
-        layout.setStretch(1, 0)
     
     def init_video(self):
         """Initialize video capture"""

@@ -1,54 +1,60 @@
+"""
+Right Panel: Conversation History - Figma Design
+Chat bubbles with avatars matching Figma design
+"""
+
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QScrollArea, QLabel, 
-    QTextEdit, QPushButton, QHBoxLayout, QComboBox
+    QWidget, QVBoxLayout, QLabel, QFrame, QHBoxLayout
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
+from .custom_widgets import COLORS
 
 
-class MessageWidget(QWidget):
-    """Individual message bubble"""
-    
-    def __init__(self, text: str, is_user: bool):
-        super().__init__()
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
+class ChatBubble(QWidget):
+    """Chat message bubble with avatar"""
+    def __init__(self, text="", is_user=False, parent=None):
+        super().__init__(parent)
+        self.is_user = is_user
+        self.text = text
         
-        message_label = QLabel(text)
-        message_label.setWordWrap(True)
-        message_label.setMaximumWidth(300)
-        message_label.setFont(QFont("Arial", 11))
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 4, 0, 4)
+        layout.setSpacing(8)
+        
+        # Avatar
+        avatar = QLabel()
+        avatar.setFixedSize(28, 28)
+        avatar.setStyleSheet(f"""
+            background-color: {COLORS['text_secondary'] if is_user else '#3A5A5F'};
+            border-radius: 14px;
+        """)
+        
+        # Message bubble
+        bubble = QFrame()
+        bubble.setFixedHeight(45)
+        bubble.setMinimumWidth(80)
+        bubble.setMaximumWidth(120)
         
         if is_user:
-            # User message (right-aligned, blue)
-            message_label.setStyleSheet("""
-                QLabel {
-                    background-color: #1e293b;
-                    color: #e2e8f0;
-                    padding: 12px;
-                    border-radius: 12px;
-                    border-bottom-right-radius: 4px;
-                    border: 1px solid #334155;
-                }
+            bubble.setStyleSheet(f"""
+                background-color: {COLORS['chat_user']};
+                border-radius: 10px;
             """)
+            layout.addWidget(bubble)
             layout.addStretch()
-            layout.addWidget(message_label)
+            layout.addWidget(avatar)
         else:
-            # AI message (left-aligned, blue)
-            message_label.setStyleSheet("""
-                QLabel {
-                    background-color: #3b82f6;
-                    color: white;
-                    padding: 12px;
-                    border-radius: 12px;
-                    border-bottom-left-radius: 4px;
-                }
+            bubble.setStyleSheet(f"""
+                background-color: {COLORS['chat_ai']};
+                border-radius: 10px;
             """)
-            layout.addWidget(message_label)
+            layout.addWidget(avatar)
+            layout.addWidget(bubble)
             layout.addStretch()
 
 
-class RightPanel(QWidget):
+class RightPanel(QFrame):
     """Conversation history panel"""
     
     message_sent = pyqtSignal(str)  # Signal when user sends a message
@@ -58,135 +64,51 @@ class RightPanel(QWidget):
     
     def __init__(self):
         super().__init__()
+        self.setFixedWidth(220)
+        self.setStyleSheet(f"""
+            QFrame#rightPanel {{
+                background-color: #0a0a0a;
+                border-radius: 12px;
+            }}
+        """)
+        self.setObjectName("rightPanel")
         self.setup_ui()
     
     def setup_ui(self):
         """Initialize the UI components"""
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 15, 10, 10)
-        layout.setSpacing(10)
+        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setSpacing(8)
         
         # Header
-        header_layout = QHBoxLayout()
+        header = QLabel("Conversation History")
+        header.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 10px;")
+        layout.addWidget(header)
         
-        header_label = QLabel("💬  Live Conversation Chat")
-        header_label.setFont(QFont("Arial", 11, QFont.Weight.Bold))
-        header_label.setStyleSheet("color: #94a3b8; border: none; padding: 5px;")
-        header_layout.addWidget(header_label)
+        # Chat messages
+        chat_widget = QWidget()
+        chat_layout = QVBoxLayout(chat_widget)
+        chat_layout.setContentsMargins(0, 8, 0, 0)
+        chat_layout.setSpacing(6)
         
-        header_layout.addStretch()
+        # AI message
+        chat_layout.addWidget(ChatBubble(is_user=False))
         
-        layout.addLayout(header_layout)
+        # User message
+        chat_layout.addWidget(ChatBubble(is_user=True))
         
-        # Conversation scroll area
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setStyleSheet("""
-            QScrollArea {
-                border: 1px solid #1e293b;
-                border-radius: 8px;
-                background-color: #0f1729;
-            }
-        """)
-        
-        # Messages container
-        self.messages_widget = QWidget()
-        self.messages_widget.setStyleSheet("background-color: #0f1729;")
-        self.messages_layout = QVBoxLayout(self.messages_widget)
-        self.messages_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.messages_layout.setSpacing(8)
-        
-        self.scroll_area.setWidget(self.messages_widget)
-        layout.addWidget(self.scroll_area, stretch=1)
-        
-        # Input area
-        input_layout = QVBoxLayout()
-        
-        self.input_field = QTextEdit()
-        self.input_field.setPlaceholderText("Type your message...")
-        self.input_field.setMaximumHeight(80)
-        self.input_field.setStyleSheet("""
-            QTextEdit {
-                background-color: #0f1729;
-                border: 1px solid #1e293b;
-                border-radius: 8px;
-                padding: 10px;
-                color: #cbd5e1;
-                font-size: 12px;
-            }
-        """)
-        input_layout.addWidget(self.input_field)
-        
-        # Send and Voice buttons
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        
-        # Voice button
-        self.voice_button = QPushButton("🎤 Voice")
-        self.voice_button.setStyleSheet("""
-            QPushButton {
-                background-color: #0ea5e9;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 8px;
-                font-weight: bold;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #0284c7;
-            }
-            QPushButton:pressed {
-                background-color: #0369a1;
-            }
-        """)
-        self.voice_button.clicked.connect(self.on_voice_button_clicked)
-        button_layout.addWidget(self.voice_button)
-        
-        send_button = QPushButton("Send")
-        send_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3b82f6;
-                color: white;
-                border: none;
-                padding: 10px 30px;
-                border-radius: 8px;
-                font-weight: bold;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #2563eb;
-            }
-            QPushButton:pressed {
-                background-color: #1d4ed8;
-            }
-        """)
-        send_button.clicked.connect(self.send_message)
-        button_layout.addWidget(send_button)
-        
-        input_layout.addLayout(button_layout)
-        layout.addLayout(input_layout)
-        
-        # Add welcome message
-        self.add_message("Initialized. I'm ready to handle your multi-modal conversions. What are we processing today?", is_user=False)
+        chat_layout.addStretch()
+        layout.addWidget(chat_widget, stretch=1)
     
     def add_message(self, text: str, is_user: bool):
         """Add a message to the conversation"""
-        message = MessageWidget(text, is_user)
-        self.messages_layout.addWidget(message)
-        
-        # Auto-scroll to bottom
-        self.scroll_area.verticalScrollBar().setValue(
-            self.scroll_area.verticalScrollBar().maximum()
-        )
+        # For now, just a placeholder
+        # In full implementation, would add ChatBubble with text
+        pass
     
     def send_message(self):
         """Handle send button click"""
-        text = self.input_field.toPlainText().strip()
-        if text:
-            self.add_message(text, is_user=True)
-            self.input_field.clear()
-            self.message_sent.emit(text)
+        pass
     
     def on_language_changed(self, language_text: str):
         """Handle language selection change"""
