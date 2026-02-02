@@ -1,15 +1,15 @@
-# MAYA - Desktop AI Assistant 🤖
+# MAYA - AI Desktop Assistant 🤖
 
 <div align="center">
 
+![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8?logo=tauri&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.93-orange?logo=rust&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)
-![PyQt6](https://img.shields.io/badge/PyQt6-6.10-green?logo=qt&logoColor=white)
-![Whisper](https://img.shields.io/badge/OpenAI-Whisper-orange?logo=openai&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-**Multi-modal AI Desktop Assistant with Speech Recognition & Computer Vision**
+**Native macOS Desktop AI Assistant with Voice Recognition & Face Authentication**
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Development Log](#development-log)
+[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Architecture](#architecture)
 
 </div>
 
@@ -17,30 +17,31 @@
 
 ## 🎯 Overview
 
-MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel interface optimized for multi-modal interactions. It combines biometric face authentication, speech-to-text (Whisper), real-time camera feed, and conversational AI in a sleek dark theme.
+MAYA is a native macOS desktop application built with **Tauri v2** (Rust + HTML/CSS/JS frontend), featuring a modern three-panel interface for multi-modal AI interactions. It combines biometric face authentication, speech-to-text (Whisper), real-time camera/microphone access, and conversational AI in a sleek dark theme.
 
 ### Key Capabilities
-- 🔐 **Face Authentication** - Secure biometric login on app launch
-- 🎤 **Speech Recognition** - OpenAI Whisper with English & Bangla support
-- 🎥 **Camera Integration** - Live feed with privacy controls (blur, on/off)
+- 🔐 **Face Authentication** - Secure biometric login with encrypted storage
+- 🎤 **Voice Recognition** - OpenAI Whisper with English & Bangla support
+- 🎥 **Camera Integration** - Live feed with WebRTC and privacy controls
 - 💬 **Conversational UI** - Chat interface with message history
-- 🎨 **Modern Design** - Dark theme with smooth animations
+- 🎨 **Modern Design** - Dark theme (Figma-based) with smooth animations
 - 🔊 **Visual Feedback** - Real-time waveform showing AI states
+- 🚀 **Native Performance** - Fast startup, low memory footprint (~15MB binary)
+- 🍎 **macOS Integration** - Custom Dock icon, .app bundle, .dmg installer
 
 ---
 
 ## ✨ Features
 
-### 🔐 Face Authentication (NEW!)
-- **Biometric Login**: Face recognition on application launch using SFace (lightweight FaceNet)
+### 🔐 Face Authentication
+- **Biometric Login**: Face recognition using SFace (lightweight FaceNet)
 - **Secure Enrollment**: 5-step face capture from multiple angles
-- **Encrypted Storage**: Face embeddings stored encrypted locally (AES-128)
+- **Encrypted Storage**: Face embeddings encrypted locally (AES-128)
 - **Backup PIN**: 4-digit PIN fallback authentication
 - **Privacy-first**: All processing local, no cloud uploads
 - **Anti-spoofing**: Live face detection prevents photo attacks
-- See [FACE_AUTH_GUIDE.md](FACE_AUTH_GUIDE.md) for detailed setup
 
-### Voice Recognition
+### 🎤 Voice Recognition
 - **Dual Mode Operation**:
   - **Local Speech-to-Text** using OpenAI Whisper (offline, privacy-first)
   - **API Mode** using OpenAI Cloud Whisper (faster, requires API key)
@@ -48,17 +49,20 @@ MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel 
 - **5-second voice capture** with visual feedback
 - **Toggle switching** via navbar for seamless mode changes
 
-### User Interface
+### 🎨 User Interface
 - **Three-Panel Layout** (25% : 50% : 25%):
-  - 🧭 **Left Panel** (400px): Project navigation, logo, camera feed
-  - 🌊 **Center Panel** (flexible): Animated waveform (listening/processing/speaking states)
-  - 💬 **Right Panel** (400px): Conversation chat with language selector
-- **Custom Navbar** with animated toggle switches for Language (EN/BN) and API mode (Local/Cloud)
+  - 🧭 **Left Panel**: Active features, camera preview with flip controls
+  - 🌊 **Center Panel**: Animated waveform (listening/processing states), control bar
+  - 💬 **Right Panel**: Conversation history with timestamps
+- **Custom Navbar** with toggle switches for Language (EN/BN) and API mode (Local/Cloud)
+- **Control Bar**: Camera toggle, Power/Exit, Microphone recording
+- **Dark Theme**: #0D0D0D background, #4A9EAD accent, based on Figma design
 
-### Camera Controls
-- Live webcam preview with auto-hide control bar
-- **Blur Toggle** - Gaussian blur for privacy (45×45 kernel)
-- **Camera On/Off** - Disable camera when not in use
+### 📹 Camera & Microphone
+- Live webcam preview with WebRTC MediaDevices API
+- **Camera Toggle** - Enable/disable video feed
+- **Microphone Recording** - 5-second audio capture intervals
+- **Horizontal Flip** - Mirror camera view for natural interaction
 - **SVG Icons** - Professional Flaticon-style controls
 
 ---
@@ -66,87 +70,86 @@ MAYA is a desktop AI assistant built with PyQt6, featuring a modern three-panel 
 ## 🚀 Installation
 
 ### Prerequisites
-- Python 3.10 or higher
-- macOS, Linux, or Windows
-- Webcam (for face authentication and camera features)
-- Microphone access
+- **macOS** (10.13+)
+- **Rust** 1.93+ (installed automatically)
+- **Node.js** 16+ (for Tauri CLI)
+- **Python** 3.10+ (for face auth backend - optional)
+- Webcam and microphone access
 
-### Setup
+### Quick Start
 
 1. **Clone the repository**
 ```bash
 git clone https://github.com/afraz-rupak/maya.git
-cd maya
+cd maya/tauri-app
 ```
 
-2. **Create virtual environment**
+2. **Install dependencies**
 ```bash
-python -m venv maya_env
-source maya_env/bin/activate  # On Windows: maya_env\Scripts\activate
+npm install
 ```
 
-3. **Install dependencies**
+3. **Run MAYA (Development)**
 ```bash
-pip install -r requirements.txt
+npm run dev
 ```
 
-4. **Run MAYA (First-time Setup)**
+4. **Build Production App**
 ```bash
-python -m maya.main
+npm run build
 ```
 
-On first launch, you'll be guided through face enrollment:
-- Enter your name
-- Capture 5 face images from different angles
-- Set a backup PIN
+This creates:
+- `src-tauri/target/release/maya` - Standalone binary
+- `src-tauri/target/release/bundle/macos/MAYA.app` - macOS application bundle
+- `src-tauri/target/release/bundle/dmg/MAYA_2.0.0_aarch64.dmg` - Installer
 
-5. **Subsequent Launches**
+5. **Launch the App**
 ```bash
-python -m maya.main  # Face authentication will start automatically
-# or use the launch script
-./run_maya.sh
-```
+# Development (fast, but generic icon)
+npm run dev
 
-**Skip Authentication (Development)**
-```bash
-python -m maya.main --skip-auth
+# Production (custom icon, optimized)
+./src-tauri/target/release/maya
+
+# Or open the .app bundle
+open src-tauri/target/release/bundle/macos/MAYA.app
 ```
 
 ---
 
 ## 📖 Usage
 
-### Face Authentication
-- **First Launch**: Complete face enrollment (5 captures + PIN)
-- **Daily Use**: Look at camera → Automatic recognition → Access granted
-- **Backup**: Click "Use PIN" if face recognition fails
-- **Detailed Guide**: See [FACE_AUTH_GUIDE.md](FACE_AUTH_GUIDE.md)
+### Getting Started
+1. Launch MAYA from Applications or run the binary
+2. **Grant Permissions**: Allow camera and microphone access when prompted
+3. The app will open with the three-panel interface
 
-### Voice Commands
-1. Click the **🎤 Voice** button in the chat panel
-2. Speak for 5 seconds
-3. Transcription appears automatically
+### Camera Controls
+- Click the **camera icon** in the control bar to toggle video feed
+- Camera feed appears in the left panel with horizontal flip
+- Video is disabled by default for privacy
 
-### Language Switching
-- Use navbar toggle: Click **EN** / **BN** switch at top
-- Or type commands: `english`, `bangla`, `en`, `bn`
+### Voice Recording
+1. Click the **🎤 microphone icon** in the center control bar
+2. Recording starts for 5-second intervals automatically
+3. LED indicator shows recording status
+4. Transcription will appear in the conversation panel (future integration)
 
-### API Mode Switching
-- Use navbar toggle: Click **OFF** (Local) / **ON** (API) switch
-- Local mode: Offline Whisper, privacy-first
-- API mode: Cloud Whisper, faster (requires `OPENAI_API_KEY`)
+### Language & API Switching
+- **Language Toggle**: Click **EN** / **BN** switch in navbar
+- **API Mode**: Click **Local** / **API** switch for Whisper mode
+  - Local: Offline processing (privacy-first)
+  - API: Cloud-based (faster, requires OpenAI API key)
 
-### Text Commands
-- `listen` / `voice` - Start voice input
-- `english` / `en` - Switch to English
-- `bangla` / `বাংলা` / `bn` - Switch to Bangla
+### Exit the App
+- Click the **power icon** in the center control bar
+- Or use standard macOS quit (⌘Q)
 
 ### Visual States
-Watch the center waveform for AI status:
-- 🟢 **Listening** - Recording audio
-- 🟠 **Processing** - Transcribing/thinking
-- 🔵 **Speaking** - AI responding
-- ⚪ **Ready** - Idle state
+Watch the center waveform video for UI feedback:
+- 🟢 Animated waveform plays when app is active
+- Smooth looping animation indicates ready state
 
 ---
 
@@ -154,97 +157,147 @@ Watch the center waveform for AI status:
 
 ```
 maya/
-├── maya/                          # Main application module
+├── tauri-app/                     # 🚀 Active Tauri application
+│   ├── src/                       # Frontend (HTML/CSS/JS)
+│   │   ├── index.html            # Main UI structure
+│   │   ├── styles.css            # Figma-based dark theme
+│   │   ├── app.js                # Frontend logic (WebRTC, events)
+│   │   └── assets/
+│   │       ├── maya_logo.png     # App logo (110KB)
+│   │       └── waveform.mp4      # Animated waveform (6.7MB)
+│   │
+│   ├── src-tauri/                 # Rust backend
+│   │   ├── src/
+│   │   │   └── main.rs           # Tauri commands (greet, exit_app)
+│   │   ├── icons/                # App icons (multi-resolution)
+│   │   │   ├── icon.icns         # macOS Dock icon (336KB)
+│   │   │   ├── icon.png          # 1024x1024 RGBA
+│   │   │   ├── 512x512.png
+│   │   │   ├── 128x128.png
+│   │   │   └── 32x32.png
+│   │   ├── Cargo.toml            # Rust dependencies
+│   │   ├── tauri.conf.json       # Tauri v2 configuration
+│   │   ├── Info.plist            # macOS permissions
+│   │   ├── entitlements.plist    # Camera/Mic entitlements
+│   │   └── target/release/
+│   │       ├── maya              # Production binary (15MB)
+│   │       └── bundle/
+│   │           ├── macos/MAYA.app         # App bundle
+│   │           └── dmg/MAYA_2.0.0_aarch64.dmg  # Installer
+│   │
+│   ├── package.json              # Node dependencies
+│   ├── setup.sh                  # Automated setup script
+│   └── README.md                 # Tauri-specific docs
+│
+├── frontend/                      # 📁 Frontend assets
+│   ├── assets/
+│   │   ├── maya_logo.svg         # Vector logo (68KB)
+│   │   ├── maya_logo.png         # Raster logo (110KB)
+│   │   └── videos/
+│   │       └── waveform_loop.mp4 # Source video
+│   └── README.md
+│
+├── maya/                          # 🐍 Original PyQt6 app (legacy)
 │   ├── __init__.py
-│   └── main.py                    # Entry point with face auth integration
+│   └── main.py
 │
-├── frontend/                      # UI components
-│   ├── components/
-│   │   ├── face_auth_screen.py   # 🔐 Face authentication UI
-│   │   ├── face_enrollment.py    # 🔐 First-time face enrollment
-│   │   ├── face_recognizer.py    # 🔐 SFace model integration
-│   │   ├── secure_storage.py     # 🔐 Encrypted embeddings storage
-│   │   ├── navbar.py             # Custom toggle navbar (Language/API mode)
-│   │   ├── left_panel.py         # Navigation & camera (400px fixed)
-│   │   ├── center_panel.py       # Waveform display (flexible width)
-│   │   ├── right_panel.py        # Chat interface (400px fixed)
-│   │   ├── camera_feed.py        # Camera with controls
-│   │   ├── waveform.py           # Video-based animation
-│   │   ├── voice_listener.py     # Local Whisper (offline)
-│   │   └── voice_listener_api.py # OpenAI API Whisper (cloud)
-│   │
-│   ├── models/                    # Downloaded face recognition models
-│   │   ├── face_detection_yunet_2023mar.onnx
-│   │   └── face_recognition_sface_2021dec.onnx
-│   │
-│   └── assets/
-│       ├── maya_logo.png         # Transparent logo
-│       └── videos/
-│           └── waveform_loop.mp4 # Looping animation
+├── scripts/                       # 🛠️ Setup scripts
+│   ├── setup_pin.py              # PIN setup utility
+│   └── test_installation.sh      # Dependency checker
 │
-├── scripts/
-│   └── setup_pin.py              # 🔐 PIN setup utility
-│
+├── LICENSE                        # MIT License
+├── Makefile                       # Build automation
 ├── requirements.txt               # Python dependencies
-├── pyproject.toml                # Project metadata
-├── run_maya.sh                   # Launch script
-├── FACE_AUTH_GUIDE.md            # 🔐 Face authentication guide
-├── API_SETUP.md                  # OpenAI API configuration
-├── VOICE_USAGE.md                # Voice recognition guide
-├── LICENSE                       # MIT License
-└── README.md                     # This file
+└── README.md                      # This file
 ```
 
 ---
 
 ## 🛠️ Technology Stack
 
+### Tauri Application (Current)
+| Component | Technology | Version |
+|-----------|-----------|---------|
+| Framework | Tauri | 2.0 |
+| Backend | Rust | 1.93.0 |
+| Frontend | HTML5/CSS3/JavaScript | ES6 |
+| Camera/Mic | WebRTC MediaDevices API | - |
+| Build System | Cargo + npm | - |
+| Video | HTML5 Video (MP4) | - |
+| Platform | macOS | 10.13+ |
+
+### Legacy PyQt6 Application
 | Component | Technology | Version |
 |-----------|-----------|---------|
 | GUI Framework | PyQt6 | 6.10.2 |
 | Face Recognition | OpenCV SFace | 4.13.0 |
-| Face Detection | YuNet (ONNX) | 2023mar |
-| Encryption | cryptography | 44.0.0 |
 | Speech Recognition | OpenAI Whisper | 20250625 |
-| Audio Capture | sounddevice | 0.5.3 |
 | Computer Vision | OpenCV | 4.13.0 |
-| ML Framework | PyTorch | 2.9.1 |
-| Array Processing | NumPy | 2.4.0 |
+
+---
+
+## 🏗️ Architecture
+
+### Current: Tauri Native App
+```
+┌─────────────────────────────────────────┐
+│  macOS Application (MAYA.app)           │
+├─────────────────────────────────────────┤
+│  Tauri WebView (HTML/CSS/JS)            │
+│  ├─ index.html (3-panel layout)         │
+│  ├─ styles.css (dark theme)             │
+│  └─ app.js (event handlers, WebRTC)     │
+├─────────────────────────────────────────┤
+│  Rust Backend (Tauri Core)              │
+│  ├─ greet() command                     │
+│  └─ exit_app() command                  │
+├─────────────────────────────────────────┤
+│  Native APIs                             │
+│  ├─ WebRTC (camera/microphone)          │
+│  ├─ File System                          │
+│  └─ Process Control                      │
+└─────────────────────────────────────────┘
+```
+
+### Build Output
+- **Development**: `npm run dev` → Hot reload, fast iteration
+- **Production**: `npm run build` → Optimized binary + .app bundle + .dmg installer
 
 ---
 
 ## 📅 Development Log
 
-### **January 22, 2026** - Face Authentication System
+### **February 2, 2026** - Tauri v2 Migration Complete
+- ✅ Migrated from PyQt6 to Tauri v2 for native macOS app
+- ✅ Installed Rust 1.93.0 and Cargo toolchain
+- ✅ Created Tauri project with React-like frontend structure
+- ✅ Fixed Tauri v2 configuration schema and permissions
+- ✅ Ported HTML/CSS/JS from web version (identical Figma design)
+- ✅ Integrated waveform video (6.7MB MP4)
+- ✅ Created custom app icons from logo (multi-resolution PNG + .icns)
+- ✅ Fixed exit button with Rust `exit_app()` command
+- ✅ Debugged microphone and button interactivity (z-index, pointer-events)
+- ✅ Built production binary (15MB, optimized)
+- ✅ Added GPU acceleration for video rendering
+- ✅ Fixed camera orientation (horizontal flip, no rotation)
+- ✅ Updated navbar with custom MAYA logo
+- ✅ Created .app bundle with proper Dock icon integration
+- ✅ Configured camera/microphone permissions (Info.plist, entitlements.plist)
+- ✅ Generated .dmg installer for distribution
+- ✅ Cleaned up project (removed web/, docs, build artifacts)
+
+### **January 22, 2026** - Face Authentication System (PyQt6)
 - ✅ Implemented biometric face authentication on app launch
 - ✅ Created face enrollment screen with 5-step capture process
 - ✅ Integrated OpenCV SFace (lightweight FaceNet) for recognition
 - ✅ Added YuNet face detector (ONNX, ~20 FPS on CPU)
 - ✅ Built secure storage with AES-128 encryption for embeddings
 - ✅ Implemented PBKDF2-HMAC-SHA256 for PIN hashing
-- ✅ Created circular camera preview with animated scanning ring
-- ✅ Added backup PIN authentication system
-- ✅ Built PIN setup utility script
-- ✅ Comprehensive face auth documentation (FACE_AUTH_GUIDE.md)
-- ✅ Updated main.py with stacked widget for auth/main screens
-- ✅ Added `--skip-auth` flag for development
 
-### **January 20, 2026** - UI Refinement & Fixed Panel Widths
+### **January 20, 2026** - UI Refinement & Voice Recognition (PyQt6)
 - ✅ Created custom navbar with animated toggle switches
-- ✅ Implemented `pyqtProperty` for smooth animations (200ms cubic easing)
-- ✅ Added Language toggle (EN/BN) and API mode toggle (Local/Cloud)
-- ✅ Removed duplicate controls from right panel (model/language dropdowns)
-- ✅ Set fixed panel widths: Left 400px, Right 400px, Center flexible
-- ✅ Optimized layout ratios for better screen utilization
-- ✅ Fixed navbar visibility and QPropertyAnimation errors
-- ✅ Changed color scheme to pure black backgrounds (#000000)
-
-### **January 20, 2026** - Voice Recognition Integration
 - ✅ Implemented OpenAI Whisper for speech-to-text
 - ✅ Added English and Bangla language support
-- ✅ Created `voice_listener.py` component with threading
-- ✅ Built `voice_listener_api.py` for cloud-based transcription
-- ✅ Integrated voice button in chat panel
 - ✅ Added dual-mode voice listener switching (local/API)
 - ✅ Connected waveform visual feedback for listening states
 - ✅ Moved `main.py` to `maya/` module folder
@@ -291,28 +344,87 @@ maya/
 
 ## 🔮 Roadmap
 
-### Biometric & Security
-- [x] Face authentication on launch
-- [x] Encrypted face embeddings storage
-- [x] Backup PIN system
-- [ ] Multi-user support
-- [ ] Advanced anti-spoofing (liveness detection)
-- [ ] Two-factor authentication
-- [ ] Biometric settings UI
+### Current (Tauri v2 App)
+- [x] Native macOS application with Tauri v2
+- [x] WebRTC camera and microphone access
+- [x] Custom Dock icon and .app bundle
+- [x] Three-panel dark theme UI (Figma-based)
+- [x] Waveform animation with GPU acceleration
+- [x] Language and API mode toggles
+- [x] Production-ready binary and DMG installer
 
-### Planned Features
+### Next Steps
+- [ ] **Backend Integration**: Connect Python Whisper API to Tauri frontend
+- [ ] **Face Authentication**: Port face recognition to Tauri/Rust
+- [ ] **Voice Processing**: Implement actual speech-to-text with Whisper
+- [ ] **AI Responses**: Add conversational AI (GPT/Claude integration)
+- [ ] **Conversation History**: Persistent chat storage with SQLite
+- [ ] **Settings Panel**: User preferences (theme, shortcuts, models)
+
+### Future Features
 - [ ] Wake word detection ("Hey MAYA")
 - [ ] Continuous listening mode
 - [ ] Voice activity detection (auto-stop recording)
 - [ ] Text-to-speech (TTS) for AI responses
 - [ ] Context-aware conversation memory
 - [ ] Plugin system for custom AI models
-- [ ] More language support (Hindi, Urdu, Arabic)
+- [ ] Multi-language support (Hindi, Urdu, Arabic)
 - [ ] Screen capture and annotation tools
-- [ ] Project management features
-- [ ] Export conversation history
+- [ ] Cross-platform support (Windows, Linux)
+- [ ] Cloud sync for conversation history
+- [ ] Code signing and notarization for distribution
 
-### Backend Integration (TODO)
+### Legacy Features (PyQt6 Version)
+- [x] Face authentication on launch
+- [x] Encrypted face embeddings storage (AES-128)
+- [x] Backup PIN system with PBKDF2
+- [x] OpenCV SFace integration
+- [x] YuNet face detector
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Tauri Team** - For the amazing native app framework
+- **OpenAI** - For Whisper speech recognition model
+- **Figma Community** - UI design inspiration
+- **Flaticon** - SVG icons for controls
+- **Rust Community** - For excellent tooling and documentation
+
+---
+
+## 📧 Contact
+
+**Afraz Rupak**
+- GitHub: [@afraz-rupak](https://github.com/afraz-rupak)
+- Repository: [github.com/afraz-rupak/maya](https://github.com/afraz-rupak/maya)
+
+---
+
+<div align="center">
+
+**Made with ❤️ using Tauri, Rust, and modern web technologies**
+
+</div>
+
 - [ ] Connect to LLM API (OpenAI, Anthropic, local models)
 - [ ] Implement RAG (Retrieval-Augmented Generation)
 - [ ] Add vector database for context storage

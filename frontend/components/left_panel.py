@@ -19,7 +19,7 @@ class FeatureCard(QFrame):
         self.setFixedHeight(28)
         self.setStyleSheet(f"""
             QFrame {{
-                background-color: {COLORS['card_bg']};
+                background-color: #0a0a0a;
                 border-radius: 6px;
             }}
         """)
@@ -84,7 +84,7 @@ class LeftPanel(QFrame):
         face_verification_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         face_verification_btn.setStyleSheet(f"""
             QPushButton {{
-                background-color: {COLORS['card_bg']};
+                background-color: #141414;
                 color: {COLORS['text_primary']};
                 border: none;
                 border-radius: 6px;
@@ -93,7 +93,7 @@ class LeftPanel(QFrame):
                 text-align: left;
             }}
             QPushButton:hover {{
-                background-color: {COLORS['card_hover']};
+                background-color: {COLORS['card_bg']};
             }}
         """)
         features_layout.addWidget(face_verification_btn)
@@ -102,7 +102,7 @@ class LeftPanel(QFrame):
         speech_recognition_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         speech_recognition_btn.setStyleSheet(f"""
             QPushButton {{
-                background-color: {COLORS['card_bg']};
+                background-color: #141414;
                 color: {COLORS['text_primary']};
                 border: none;
                 border-radius: 6px;
@@ -111,7 +111,7 @@ class LeftPanel(QFrame):
                 text-align: left;
             }}
             QPushButton:hover {{
-                background-color: {COLORS['card_hover']};
+                background-color: {COLORS['card_bg']};
             }}
         """)
         features_layout.addWidget(speech_recognition_btn)

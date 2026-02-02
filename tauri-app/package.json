@@ -1,0 +1,14 @@
+{
+  "name": "maya-tauri",
+  "version": "2.0.0",
+  "description": "MAYA AI Assistant - Tauri Desktop Application",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

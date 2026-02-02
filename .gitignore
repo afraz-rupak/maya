@@ -188,4 +188,7 @@ cython_debug/
 .ruff_cache/
 
 # PyPI configuration file
-.pypirc
+.pypircnode_modules/
+target/
+*.dmg
+.DS_Store

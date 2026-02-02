@@ -84,7 +84,7 @@ class RightPanel(QFrame):
         self.setFixedWidth(280)
         self.setStyleSheet(f"""
             QFrame#rightPanel {{
-                background-color: #0a0a0a;
+                background-color: #000000;
                 border-radius: 12px;
             }}
         """)

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAYA - AI Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <img src="assets/maya_logo.svg" alt="MAYA" style="height: 45px;">
+            </div>
+            <div class="navbar-controls">
+                <div class="toggle-group">
+                    <span class="toggle-label">Language</span>
+                    <div class="toggle-switch" id="languageToggle">
+                        <div class="toggle-slider"></div>
+                        <span class="toggle-text left">EN</span>
+                        <span class="toggle-text right">BN</span>
+                    </div>
+                </div>
+                <div class="toggle-group">
+                    <span class="toggle-label">API</span>
+                    <div class="toggle-switch" id="apiToggle">
+                        <div class="toggle-slider"></div>
+                        <span class="toggle-text left">Local</span>
+                        <span class="toggle-text right">API</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-container">
+        <!-- Left Panel: Active Features & Camera -->
+        <aside class="left-panel">
+            <div class="features-section">
+                <div class="section-header">
+                    <h3>Active Features</h3>
+                    <button class="settings-btn">⚙</button>
+                </div>
+                <button class="feature-btn">Face Verification</button>
+                <button class="feature-btn">Speech Recognition</button>
+            </div>
+            
+            <div class="camera-section">
+                <p class="section-label">Live Camera</p>
+                <div class="camera-preview" id="cameraPreview">
+                    <span class="camera-icon">📷</span>
+                    <video id="cameraVideo" autoplay playsinline></video>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Panel: Waveform & Controls -->
+        <main class="center-panel">
+            <div class="waveform-area">
+                <video id="waveformVideo" autoplay loop muted playsinline preload="auto">
+                    <source src="assets/waveform.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="control-bar">
+                <button class="icon-btn" id="cameraBtn" data-active="false">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <rect x="2" y="6" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M16 9L20 7V17L16 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="2" y1="19" x2="20" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="icon-btn power-btn" id="powerBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 3V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" id="micBtn" data-active="false">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <rect x="9" y="2" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M5 10V11C5 14.866 8.13401 18 12 18C15.866 18 19 14.866 19 11V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="3" y1="21" x2="21" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        </main>
+
+        <!-- Right Panel: Conversation History -->
+        <aside class="right-panel">
+            <div class="chat-header">
+                <h3>Conversation History</h3>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
