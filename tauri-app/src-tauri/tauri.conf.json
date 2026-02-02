@@ -31,6 +31,7 @@
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
+      "icons/icon.ico",
       "icons/icon.png"
     ],
     "publisher": "Afraz Rupak",
@@ -38,9 +39,27 @@
     "category": "Productivity",
     "shortDescription": "MAYA AI Assistant",
     "longDescription": "AI-powered voice assistant with face recognition",
+    "targets": ["app", "dmg", "msi", "nsis", "deb", "appimage"],
     "macOS": {
       "minimumSystemVersion": "10.13",
       "entitlements": "entitlements.plist"
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "allowDowngrades": true
+    },
+    "linux": {
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0"]
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
     }
   }
 }

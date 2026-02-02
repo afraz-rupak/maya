@@ -5,9 +5,10 @@
 ![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8?logo=tauri&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.93-orange?logo=rust&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)
+![Cross-Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-**Native macOS Desktop AI Assistant with Voice Recognition & Face Authentication**
+**Cross-Platform Native Desktop AI Assistant with Voice Recognition & Face Authentication**
 
 [Features](#features) • [Installation](#installation) • [Usage](#usage) • [Architecture](#architecture)
 
@@ -17,9 +18,10 @@
 
 ## 🎯 Overview
 
-MAYA is a native macOS desktop application built with **Tauri v2** (Rust + HTML/CSS/JS frontend), featuring a modern three-panel interface for multi-modal AI interactions. It combines biometric face authentication, speech-to-text (Whisper), real-time camera/microphone access, and conversational AI in a sleek dark theme.
+MAYA is a **cross-platform native desktop application** built with **Tauri v2** (Rust + HTML/CSS/JS frontend), featuring a modern three-panel interface for multi-modal AI interactions. It runs natively on **macOS, Windows, and Linux**, combining biometric face authentication, speech-to-text (Whisper), real-time camera/microphone access, and conversational AI in a sleek dark theme.
 
 ### Key Capabilities
+- 🖥️ **Cross-Platform** - Native apps for macOS, Windows, and Linux from single codebase
 - 🔐 **Face Authentication** - Secure biometric login with encrypted storage
 - 🎤 **Voice Recognition** - OpenAI Whisper with English & Bangla support
 - 🎥 **Camera Integration** - Live feed with WebRTC and privacy controls
@@ -27,7 +29,7 @@ MAYA is a native macOS desktop application built with **Tauri v2** (Rust + HTML/
 - 🎨 **Modern Design** - Dark theme (Figma-based) with smooth animations
 - 🔊 **Visual Feedback** - Real-time waveform showing AI states
 - 🚀 **Native Performance** - Fast startup, low memory footprint (~15MB binary)
-- 🍎 **macOS Integration** - Custom Dock icon, .app bundle, .dmg installer
+- 📦 **Easy Distribution** - .dmg (macOS), .msi/.exe (Windows), .deb/.AppImage (Linux)
 
 ---
 
@@ -70,11 +72,40 @@ MAYA is a native macOS desktop application built with **Tauri v2** (Rust + HTML/
 ## 🚀 Installation
 
 ### Prerequisites
-- **macOS** (10.13+)
-- **Rust** 1.93+ (installed automatically)
+- **Rust** 1.93+ (installed automatically via rustup)
 - **Node.js** 16+ (for Tauri CLI)
 - **Python** 3.10+ (for face auth backend - optional)
 - Webcam and microphone access
+
+### Platform-Specific Requirements
+
+#### macOS
+```bash
+xcode-select --install
+```
+
+#### Windows
+- Install [Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+- Or install Visual Studio 2022 with "Desktop development with C++" workload
+
+#### Linux (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
+  libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+```
+
+#### Linux (Fedora)
+```bash
+sudo dnf install webkit2gtk4.1-devel openssl-devel curl wget file \
+  libappindicator-gtk3-devel librsvg2-devel
+```
+
+#### Linux (Arch)
+```bash
+sudo pacman -S webkit2gtk-4.1 base-devel curl wget file openssl \
+  appmenu-gtk-module gtk3 libappindicator-gtk3 librsvg libvips
+```
 
 ### Quick Start
 
@@ -84,36 +115,47 @@ git clone https://github.com/afraz-rupak/maya.git
 cd maya/tauri-app
 ```
 
-2. **Install dependencies**
+2. **Install Rust** (if not already installed)
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+```
+
+3. **Install dependencies**
 ```bash
 npm install
 ```
 
-3. **Run MAYA (Development)**
+4. **Run MAYA (Development)**
 ```bash
 npm run dev
 ```
 
-4. **Build Production App**
+5. **Build Production App**
 ```bash
 npm run build
 ```
 
-This creates:
-- `src-tauri/target/release/maya` - Standalone binary
-- `src-tauri/target/release/bundle/macos/MAYA.app` - macOS application bundle
-- `src-tauri/target/release/bundle/dmg/MAYA_2.0.0_aarch64.dmg` - Installer
+This creates platform-specific installers:
+- **macOS**: `src-tauri/target/release/bundle/macos/MAYA.app` + `.dmg` installer
+- **Windows**: `src-tauri/target/release/bundle/msi/MAYA_2.0.0_x64.msi`
+- **Linux**: `src-tauri/target/release/bundle/deb/maya_2.0.0_amd64.deb` + `.AppImage`
 
-5. **Launch the App**
+6. **Launch the App**
 ```bash
-# Development (fast, but generic icon)
+# Development (fast iteration, hot reload)
 npm run dev
 
-# Production (custom icon, optimized)
+# Production (optimized, platform-specific)
+# macOS:
 ./src-tauri/target/release/maya
+# or: open src-tauri/target/release/bundle/macos/MAYA.app
 
-# Or open the .app bundle
-open src-tauri/target/release/bundle/macos/MAYA.app
+# Windows:
+.\src-tauri\target\release\maya.exe
+
+# Linux:
+./src-tauri/target/release/maya
 ```
 
 ---
@@ -216,15 +258,22 @@ maya/
 ## 🛠️ Technology Stack
 
 ### Tauri Application (Current)
-| Component | Technology | Version |
-|-----------|-----------|---------|
-| Framework | Tauri | 2.0 |
-| Backend | Rust | 1.93.0 |
-| Frontend | HTML5/CSS3/JavaScript | ES6 |
-| Camera/Mic | WebRTC MediaDevices API | - |
-| Build System | Cargo + npm | - |
-| Video | HTML5 Video (MP4) | - |
-| Platform | macOS | 10.13+ |
+| Component | Technology | Version | Platform |
+|-----------|-----------|---------|----------|
+| Framework | Tauri | 2.0 | macOS, Windows, Linux |
+| Backend | Rust | 1.93.0 | Cross-platform |
+| Frontend | HTML5/CSS3/JavaScript | ES6 | Cross-platform |
+| Camera/Mic | WebRTC MediaDevices API | - | All platforms |
+| Build System | Cargo + npm | - | Cross-platform |
+| Video | HTML5 Video (MP4) | - | All platforms |
+| Icons | .icns (macOS), .ico (Windows), .png (Linux) | - | Platform-specific |
+
+### Platform Support
+| Platform | Minimum Version | Installer Format | Binary Size |
+|----------|----------------|------------------|-------------|
+| macOS | 10.13+ (High Sierra) | .dmg, .app | ~15MB |
+| Windows | Windows 7+ | .msi, .exe (NSIS) | ~15MB |
+| Linux | Ubuntu 20.04+, Fedora 36+, Arch | .deb, .AppImage | ~15MB |
 
 ### Legacy PyQt6 Application
 | Component | Technology | Version |
@@ -238,10 +287,11 @@ maya/
 
 ## 🏗️ Architecture
 
-### Current: Tauri Native App
+### Current: Tauri Native App (Cross-Platform)
 ```
 ┌─────────────────────────────────────────┐
-│  macOS Application (MAYA.app)           │
+│  Native Application                     │
+│  (Windows/macOS/Linux)                  │
 ├─────────────────────────────────────────┤
 │  Tauri WebView (HTML/CSS/JS)            │
 │  ├─ index.html (3-panel layout)         │
@@ -252,22 +302,39 @@ maya/
 │  ├─ greet() command                     │
 │  └─ exit_app() command                  │
 ├─────────────────────────────────────────┤
-│  Native APIs                             │
-│  ├─ WebRTC (camera/microphone)          │
-│  ├─ File System                          │
-│  └─ Process Control                      │
+│  Platform-Specific APIs                 │
+│  ├─ Windows: Win32, WebView2            │
+│  ├─ macOS: Cocoa, WKWebView              │
+│  └─ Linux: GTK, WebKitGTK                │
 └─────────────────────────────────────────┘
 ```
 
-### Build Output
-- **Development**: `npm run dev` → Hot reload, fast iteration
-- **Production**: `npm run build` → Optimized binary + .app bundle + .dmg installer
+### Build Output (Platform-Specific)
+| Platform | Artifacts |
+|----------|-----------|
+| **macOS** | `MAYA.app` (app bundle), `MAYA_2.0.0_aarch64.dmg` (installer) |
+| **Windows** | `MAYA_2.0.0_x64.msi` (MSI installer), `MAYA_2.0.0_x64-setup.exe` (NSIS) |
+| **Linux** | `maya_2.0.0_amd64.deb` (Debian), `maya_2.0.0_amd64.AppImage` (portable) |
+
+- **Development**: `npm run dev` → Hot reload, fast iteration (all platforms)
+- **Production**: `npm run build` → Optimized binary + platform installer
 
 ---
 
 ## 📅 Development Log
 
-### **February 2, 2026** - Tauri v2 Migration Complete
+### **February 3, 2026** - Cross-Platform Support Added
+- ✅ Configured Tauri for Windows and Linux builds
+- ✅ Created Windows .ico icon (multi-resolution: 256, 128, 64, 48, 32, 16)
+- ✅ Added platform-specific build targets (dmg, msi, nsis, deb, appimage)
+- ✅ Configured Windows WebView2 installer settings
+- ✅ Added Linux GTK and WebKit dependencies
+- ✅ Updated README with cross-platform installation instructions
+- ✅ Added platform-specific prerequisites for Ubuntu, Fedora, Arch, Windows
+- ✅ Documented build output locations for all platforms
+- ✅ Updated architecture diagram to show Windows/macOS/Linux support
+
+### **February 2, 2026** - Tauri v2 Migration Complete (macOS)
 - ✅ Migrated from PyQt6 to Tauri v2 for native macOS app
 - ✅ Installed Rust 1.93.0 and Cargo toolchain
 - ✅ Created Tauri project with React-like frontend structure

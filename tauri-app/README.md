@@ -1,19 +1,20 @@
 # MAYA Tauri Desktop App
 
-A modern desktop application for MAYA AI Assistant built with Tauri v2, combining web technologies with native performance.
+A modern cross-platform desktop application for MAYA AI Assistant built with Tauri v2, combining web technologies with native performance.
 
 ## 🚀 Features
 
-- **Native Desktop App**: Runs as a native application on macOS, Windows, and Linux
-- **Lightweight**: Much smaller than Electron (~3MB vs 100MB+)
+- **Cross-Platform**: Runs natively on macOS, Windows, and Linux
+- **Lightweight**: Much smaller than Electron (~15MB vs 100MB+)
 - **Fast**: Rust backend provides native performance
 - **Secure**: Tauri's security model protects against common vulnerabilities
-- **Same Beautiful UI**: Identical Figma design as web and PyQt6 versions
-- **Python Backend**: Integrated FastAPI backend with Whisper AI
+- **Same Beautiful UI**: Identical Figma design across all platforms
 - **WebRTC**: Browser APIs for camera and microphone access
-- **Cross-Platform**: Single codebase for all platforms
+- **Native Installers**: .dmg (macOS), .msi/.exe (Windows), .deb/.AppImage (Linux)
 
 ## 📋 Prerequisites
+
+### All Platforms
 
 1. **Rust** (latest stable)
    ```bash
@@ -21,21 +22,61 @@ A modern desktop application for MAYA AI Assistant built with Tauri v2, combinin
    ```
 
 2. **Node.js** (v16 or later)
-   ```bash
-   brew install node  # macOS
-   ```
+   - Download from https://nodejs.org/
 
-3. **Python 3.8+** with MAYA dependencies
-   ```bash
-   cd /path/to/maya
-   source maya_env/bin/activate
-   pip install fastapi uvicorn websockets soundfile openai-whisper
-   ```
+### Platform-Specific
 
-4. **System Dependencies** (macOS)
-   ```bash
-   xcode-select --install
-   ```
+#### macOS
+```bash
+xcode-select --install
+```
+
+#### Windows
+```bash
+# Install Visual Studio C++ Build Tools
+# Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+```
+
+#### Linux (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install libwebkit2gtk-4.1-dev \
+  build-essential \
+  curl \
+  wget \
+  file \
+  libxdo-dev \
+  libssl-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
+```
+
+#### Linux (Fedora)
+```bash
+sudo dnf install webkit2gtk4.1-devel \
+  openssl-devel \
+  curl \
+  wget \
+  file \
+  libappindicator-gtk3-devel \
+  librsvg2-devel
+```
+
+#### Linux (Arch)
+```bash
+sudo pacman -Syu
+sudo pacman -S webkit2gtk-4.1 \
+  base-devel \
+  curl \
+  wget \
+  file \
+  openssl \
+  appmenu-gtk-module \
+  gtk3 \
+  libappindicator-gtk3 \
+  librsvg \
+  libvips
+```
 
 ## 🛠️ Installation
 
@@ -61,9 +102,9 @@ npm run dev
 ```
 
 This will:
-- Start the Python FastAPI backend automatically
 - Launch the Tauri development window
 - Enable hot-reload for frontend changes
+- Use native WebRTC for camera/microphone
 
 ## 📦 Building for Production
 
@@ -74,10 +115,41 @@ cd tauri-app
 npm run build
 ```
 
-The built application will be in `src-tauri/target/release/bundle/`:
-- **macOS**: `.app` and `.dmg` files
-- **Windows**: `.exe` and `.msi` installers
-- **Linux**: `.deb`, `.AppImage` files
+### Output Locations:
+
+#### macOS
+```
+src-tauri/target/release/bundle/
+├── macos/MAYA.app              # App bundle
+└── dmg/MAYA_2.0.0_aarch64.dmg  # Installer
+```
+
+#### Windows
+```
+src-tauri/target/release/bundle/
+├── msi/MAYA_2.0.0_x64.msi      # MSI installer
+└── nsis/MAYA_2.0.0_x64-setup.exe  # NSIS installer
+```
+
+#### Linux
+```
+src-tauri/target/release/bundle/
+├── deb/maya_2.0.0_amd64.deb    # Debian package
+└── appimage/maya_2.0.0_amd64.AppImage  # AppImage
+```
+
+### Cross-Platform Building (Advanced)
+
+To build for other platforms from macOS:
+
+```bash
+# For Windows (requires Wine or cross-compilation setup)
+cargo install cross
+cross build --target x86_64-pc-windows-msvc --release
+
+# For Linux (requires Docker)
+cross build --target x86_64-unknown-linux-gnu --release
+```
 
 ## 🏗️ Architecture
 
@@ -86,7 +158,7 @@ The built application will be in `src-tauri/target/release/bundle/`:
 │     Tauri Native Window (Rust)      │
 │  ┌───────────────────────────────┐  │
 │  │   WebView (HTML/CSS/JS)       │  │
-│  │   - Same UI as web version    │  │
+│  │   - Same UI on all platforms  │  │
 │  │   - WebRTC camera/mic         │  │
 │  │   - Tauri invoke() calls      │  │
 │  └───────────────────────────────┘  │
@@ -95,9 +167,9 @@ The built application will be in `src-tauri/target/release/bundle/`:
 │              │                       │
 └──────────────┼───────────────────────┘
                │
-               ▼
-    ┌──────────────────────┐
-    │  Python Backend      │
+         Platform APIs
+    (Windows/macOS/Linux native)
+```
     │  - FastAPI server    │
     │  - Whisper AI        │
     │  - Voice processing  │
